@@ -11,6 +11,7 @@ struct PriceChartView: View {
     @State private var scale: CGFloat = 1.0
     @State private var dragOffset: CGFloat = 0.0
     @State private var lastDragValue: CGFloat = 0.0
+    @Environment(\.openWindow) var openWindow
 
     @State var rawSelectedDate: Date?
 
@@ -126,11 +127,16 @@ struct PriceChartView: View {
             .padding(.bottom, 8)
 
             if priceData.isEmpty {
-                Text("No price data available")
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-                    .background(Color.secondary.opacity(0.8))
-                    .cornerRadius(8)
+                VStack {
+                    Text("No price data available, check your database connection.")
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    Button("Open Settings") {
+                        openWindow(id: "settings")
+                    }
+                }
+                .padding()
+                .background(Color.secondary.opacity(0.8))
+                .cornerRadius(8)
             } else {
                 chartView
             }

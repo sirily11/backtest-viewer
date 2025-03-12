@@ -12,6 +12,9 @@ struct TradingAnalyzerApp: App {
     @AppStorage("postgres:username") private var username = ""
     @AppStorage("postgres:password") private var password = ""
     @AppStorage("postgres:database") private var database = ""
+    @AppStorage("working-folder") var workingFolder: String = ""
+
+    @State private var isOpenFolder = false
 
     init() {
         let service = PostgresService()
@@ -38,6 +41,20 @@ struct TradingAnalyzerApp: App {
                 Button("Postgres Connection") {
                     // Open the settings window
                     open(id: "settings")
+                }
+            }
+
+            CommandGroup(replacing: CommandGroupPlacement.newItem) {
+                Button("Open new results folder") {
+                    isOpenFolder = true
+                }
+                .fileImporter(isPresented: $isOpenFolder, allowedContentTypes: [.directory]) { result in
+                    switch result {
+                    case .success(let dictionary):
+                        self.workingFolder = dictionary.absoluteString
+                    case .failure(let error):
+                        print(error)
+                    }
                 }
             }
         }

@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var folders = [URL]()
     @AppStorage("working-folder") var workingFolder: String = ""
     @State private var selectedFolder: URL? = nil
+    @State private var hasLoaded = false
 
     @Environment(AlertManager.self) var alertManager
 
@@ -20,7 +21,7 @@ struct ContentView: View {
             if folders.count > 0 {
                 NavigationSplitView(sidebar: {
                     HStack {
-                        Text("Results")
+                        Text("Individual results")
                             .foregroundStyle(.gray)
                         Spacer()
                     }
@@ -38,7 +39,11 @@ struct ContentView: View {
                     }
                 })
             } else {
-                buildEmptyView()
+                if !hasLoaded {
+                    ProgressView()
+                } else {
+                    buildEmptyView()
+                }
             }
         }
         .alert(alertManager.alertTitle,
@@ -50,10 +55,19 @@ struct ContentView: View {
                }, message: {
                    Text(alertManager.alertMessage)
                })
+        .onChange(of: workingFolder) { _, _ in
+            print("Reload folders")
+            if let url = URL(string: workingFolder) {
+                readFoldersInDirectory(directory: url)
+            }
+        }
         .task {
             print("Working folder: \(workingFolder)")
             if let url = URL(string: workingFolder) {
                 readFoldersInDirectory(directory: url)
+            }
+            withAnimation {
+                hasLoaded = true
             }
         }
     }
@@ -61,7 +75,8 @@ struct ContentView: View {
     @ViewBuilder
     func buildEmptyView() -> some View {
         HStack {
-            Text("Pick a folder")
+            Text("You are not open any back test results folder yet.")
+
             Button("Pick a folder") {
                 isOpenFolder.toggle()
             }
@@ -69,7 +84,6 @@ struct ContentView: View {
                 switch result {
                 case .success(let dictionary):
                     self.workingFolder = dictionary.absoluteString
-                    readFoldersInDirectory(directory: dictionary)
                 case .failure(let error):
                     print(error)
                 }

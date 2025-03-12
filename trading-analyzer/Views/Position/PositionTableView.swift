@@ -106,11 +106,11 @@ struct PositionTableView: View {
                     )
                 }
             } else {
-                openWindow(id: "settings")
                 return
             }
 
         } catch {
+            showingPositionDetail = false
             alert.showAlert(message: "Error loading position trades: \(error.localizedDescription)")
         }
         isLoadingTrades = false
