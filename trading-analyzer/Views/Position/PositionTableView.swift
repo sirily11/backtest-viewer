@@ -19,7 +19,6 @@ struct PositionTableView: View {
     @State private var positionTrades: [PositionTradeData] = []
     @State private var priceData: [PriceData] = []
     @State private var isLoadingTrades = false
-    @State private var tradeLoadError: Error? = nil
 
     @Environment(AlertManager.self) var alert
     @Environment(\.openWindow) var openWindow
@@ -45,68 +44,67 @@ struct PositionTableView: View {
             if let selectedID = selection, items.contains(selectedID) {
                 Button("View Details") {
                     if let position = positions.first(where: { $0.id == selectedID }) {
-                        selectedPosition = position
-                        loadPositionTrades(for: position)
+                        Task {
+                            selectedPosition = position
+                            await loadPositionTrades(for: position)
+                        }
                     }
                 }
             }
         }
         .sheet(isPresented: $showingPositionDetail) {
-            if let position = selectedPosition {
-                PositionDetailView(
-                    position: position,
+            Group {
+                PositionLoadingView(
+                    position: selectedPosition,
                     trades: positionTrades,
                     priceData: priceData
                 )
-                .frame(minWidth: 600)
+                .frame(minWidth: 600, minHeight: 600)
             }
         }
     }
 
-    private func loadPositionTrades(for position: PositionData) {
-        isLoadingTrades = true
-        tradeLoadError = nil
+    private func loadPositionTrades(for position: PositionData) async {
+        withAnimation {
+            isLoadingTrades = true
+            showingPositionDetail = true
+        }
 
-        Task {
-            do {
-                // Load trades for this position
-                let allTrades = try await CSVParserService.parsePositionTradeData(
-                    from: positionTradingFile)
-                positionTrades = allTrades.filter { $0.marketId == position.marketId }
+        do {
+            // Load trades for this position
+            let allTrades = try await CSVParserService.parsePositionTradeData(
+                from: positionTradingFile)
+            positionTrades = allTrades.filter { $0.marketId == position.marketId }
 
-                // Load price data if we have a PostgreSQL connection
-                if postgresService.isConnected {
-                    // Calculate date range for price data
-                    // Use 1 day before first trade to 1 day after last trade
-                    if let firstTradeDate = positionTrades.map({ $0.confirmTime }).min(),
-                       let lastTradeDate = positionTrades.map({ $0.confirmTime }).max()
-                    {
-                        let startDate =
-                            Calendar.current.date(byAdding: .day, value: -1, to: firstTradeDate)
-                                ?? firstTradeDate
-                        let endDate =
-                            Calendar.current.date(byAdding: .day, value: 1, to: lastTradeDate)
-                                ?? lastTradeDate
+            // Load price data if we have a PostgreSQL connection
+            if postgresService.isConnected {
+                // Calculate date range for price data
+                // Use 1 day before first trade to 1 day after last trade
+                if let firstTradeDate = positionTrades.map({ $0.confirmTime }).min(),
+                   let lastTradeDate = positionTrades.map({ $0.confirmTime }).max()
+                {
+                    let startDate =
+                        Calendar.current.date(byAdding: .day, value: -1, to: firstTradeDate)
+                            ?? firstTradeDate
+                    let endDate =
+                        Calendar.current.date(byAdding: .day, value: 1, to: lastTradeDate)
+                            ?? lastTradeDate
 
-                        priceData = try await postgresService.fetchPriceData(
-                            forMarketId: position.marketId,
-                            startDate: startDate,
-                            endDate: endDate
-                        )
-                    }
-                } else {
-                    openWindow(id: "settings")
-                    return
+                    priceData = try await postgresService.fetchPriceData(
+                        forMarketId: position.marketId,
+                        startDate: startDate,
+                        endDate: endDate
+                    )
                 }
-
-                // Show the detail view
-                showingPositionDetail = true
-            } catch {
-                alert.showAlert(message: "Error loading position trades: \(error.localizedDescription)")
+            } else {
+                openWindow(id: "settings")
+                return
             }
 
-            isLoadingTrades = false
+        } catch {
+            alert.showAlert(message: "Error loading position trades: \(error.localizedDescription)")
         }
+        isLoadingTrades = false
     }
 }
 

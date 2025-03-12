@@ -21,7 +21,9 @@ class PostgresService {
     var isConnected: Bool = false
     var connectionError: String?
 
-    func connect(host: String, port: Int, username: String, password: String, database: String) async {
+    func connect(host: String, port: Int, username: String, password: String, database: String)
+        async
+    {
         // Close existing connection if any
         await self.disconnect()
 
@@ -32,7 +34,8 @@ class PostgresService {
 
             // Connect to PostgreSQL
             self.connection = try await PostgresConnection.connect(
-                on: elg.next(), configuration: PostgresConnection.Configuration(
+                on: elg.next(),
+                configuration: PostgresConnection.Configuration(
                     host: host,
                     port: port,
                     username: username,
@@ -74,12 +77,6 @@ class PostgresService {
             throw PostgresError.connectionClosed
         }
 
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [.withInternetDateTime]
-
-        let startDateString = dateFormatter.string(from: startDate)
-        let endDateString = dateFormatter.string(from: endDate)
-
         let query = """
         SELECT
             date_trunc('second', block_time) AS time_second,
@@ -99,22 +96,22 @@ class PostgresService {
             query,
             [
                 PostgresData(string: marketId),
-                PostgresData(string: startDateString),
-                PostgresData(string: endDateString),
+                PostgresData(date: startDate),
+                PostgresData(date: endDate),
             ]
         ).wait()
 
         var priceData: [PriceData] = []
 
         for row in rows {
-            if let timeSecond = row.column("time_second"),
+            if let timeSecond = row.column("time_second"), // 2025-02-25 17:40:46 +0000
                let avgPrice = row.column("avg_price_in_sol")?.double,
                let transactionCount = row.column("transaction_count")?.int,
                let minPrice = row.column("min_price_in_sol")?.double,
                let maxPrice = row.column("max_price_in_sol")?.double
             {
                 let pricePoint = PriceData(
-                    timeSecond: Date(timeIntervalSince1970: timeSecond.double ?? 0),
+                    timeSecond: timeSecond.date ?? Date(),
                     avgPriceInSol: avgPrice,
                     transactionCount: transactionCount,
                     minPriceInSol: minPrice,

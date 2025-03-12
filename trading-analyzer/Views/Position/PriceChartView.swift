@@ -21,12 +21,6 @@ struct PriceChartView: View {
                     .cornerRadius(8)
             } else {
                 chartView
-
-                if let selectedTrade = selectedTrade {
-                    tradeDetailView(trade: selectedTrade)
-                } else if let selectedPrice = selectedPrice {
-                    priceDetailView(price: selectedPrice)
-                }
             }
         }
         .padding()
@@ -88,36 +82,36 @@ struct PriceChartView: View {
             }
         }
         .frame(height: 300)
-        .chartOverlay { proxy in
-            GeometryReader { geometry in
-                Rectangle()
-                    .fill(Color.clear)
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                let x = value.location.x - geometry[proxy.plotAreaFrame].origin.x
-                                let y = value.location.y - geometry[proxy.plotAreaFrame].origin.y
-
-                                if let date = proxy.value(atX: x, as: Date.self),
-                                   let price = proxy.value(atY: y, as: Double.self)
-                                {
-                                    // Find closest price data point
-                                    if let closestPrice = findClosestPriceData(to: date) {
-                                        selectedPrice = closestPrice
-                                    }
-
-                                    // Find closest trade
-                                    if let closestTrade = findClosestTrade(to: date, price: price) {
-                                        selectedTrade = closestTrade
-                                    } else {
-                                        selectedTrade = nil
-                                    }
-                                }
-                            }
-                    )
-            }
-        }
+//        .chartOverlay { proxy in
+//            GeometryReader { geometry in
+//                Rectangle()
+//                    .fill(Color.clear)
+//                    .contentShape(Rectangle())
+//                    .gesture(
+//                        DragGesture(minimumDistance: 0)
+//                            .onChanged { value in
+//                                let x = value.location.x - geometry[proxy.plotAreaFrame].origin.x
+//                                let y = value.location.y - geometry[proxy.plotAreaFrame].origin.y
+//
+//                                if let date = proxy.value(atX: x, as: Date.self),
+//                                   let price = proxy.value(atY: y, as: Double.self)
+//                                {
+//                                    // Find closest price data point
+//                                    if let closestPrice = findClosestPriceData(to: date) {
+//                                        selectedPrice = closestPrice
+//                                    }
+//
+//                                    // Find closest trade
+//                                    if let closestTrade = findClosestTrade(to: date, price: price) {
+//                                        selectedTrade = closestTrade
+//                                    } else {
+//                                        selectedTrade = nil
+//                                    }
+//                                }
+//                            }
+//                    )
+//            }
+//        }
     }
 
     private func tradeDetailView(trade: PositionTradeData) -> some View {
