@@ -10,31 +10,51 @@ import SwiftUI
 struct ContentView: View {
     @State private var isOpenFolder = false
     @State private var folders = [URL]()
+    @AppStorage("working-folder") var workingFolder: String = ""
     @State private var selectedFolder: URL? = nil
 
+    @Environment(AlertManager.self) var alertManager
+
     var body: some View {
-        if folders.count > 0 {
-            NavigationSplitView(sidebar: {
-                HStack {
-                    Text("Results")
-                        .foregroundStyle(.gray)
-                    Spacer()
-                }
-                .padding(.horizontal)
-                List(folders, id: \.self, selection: $selectedFolder) { folder in
-                    NavigationLink(value: folder) {
-                        Text(folder.lastPathComponent)
+        Group {
+            if folders.count > 0 {
+                NavigationSplitView(sidebar: {
+                    HStack {
+                        Text("Results")
+                            .foregroundStyle(.gray)
+                        Spacer()
                     }
-                }
-                .frame(minWidth: 200)
-            }, detail: {
-                if let selectedFolder = selectedFolder {
-                    DetailView(folder: selectedFolder)
-                        .navigationTitle("Trading Analyzer")
-                }
-            })
-        } else {
-            buildEmptyView()
+                    .padding(.horizontal)
+                    List(folders, id: \.self, selection: $selectedFolder) { folder in
+                        NavigationLink(value: folder) {
+                            Text(folder.lastPathComponent)
+                        }
+                    }
+                    .frame(minWidth: 200)
+                }, detail: {
+                    if let folder = selectedFolder {
+                        DetailView(folder: folder)
+                            .navigationTitle("Trading Analyzer")
+                    }
+                })
+            } else {
+                buildEmptyView()
+            }
+        }
+        .alert(alertManager.alertTitle,
+               isPresented: alertManager.isAlertPresentedBinding,
+               actions: {
+                   Button("OK", role: .cancel) {
+                       alertManager.hideAlert()
+                   }
+               }, message: {
+                   Text(alertManager.alertMessage)
+               })
+        .task {
+            print("Working folder: \(workingFolder)")
+            if let url = URL(string: workingFolder) {
+                readFoldersInDirectory(directory: url)
+            }
         }
     }
 
@@ -48,12 +68,8 @@ struct ContentView: View {
             .fileImporter(isPresented: $isOpenFolder, allowedContentTypes: [.directory]) { result in
                 switch result {
                 case .success(let dictionary):
-                    let gotAccess = dictionary.startAccessingSecurityScopedResource()
-                    if !gotAccess {
-                        return
-                    }
+                    self.workingFolder = dictionary.absoluteString
                     readFoldersInDirectory(directory: dictionary)
-                    dictionary.stopAccessingSecurityScopedResource()
                 case .failure(let error):
                     print(error)
                 }

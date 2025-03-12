@@ -10,6 +10,7 @@ import SwiftUI
 struct PositionView: View {
     let positionFile: URL
     let positionTradingFile: URL
+    @Environment(PostgresService.self) var postgresService
 
     @State private var positions: [PositionData] = []
     @State private var isLoading = true
@@ -48,7 +49,11 @@ struct PositionView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                PositionTableView(positions: positions)
+                PositionTableView(
+                    positions: positions,
+                    positionTradingFile: positionTradingFile,
+                    postgresService: postgresService
+                )
             }
         }
         .task {

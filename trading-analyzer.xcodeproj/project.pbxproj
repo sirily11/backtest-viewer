@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */; };
+		DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE202D81B9C9005F0C90 /* PostgresNIO */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */,
 				DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,6 +120,7 @@
 			name = "trading-analyzer";
 			packageProductDependencies = (
 				DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */,
+				DFD9FE202D81B9C9005F0C90 /* PostgresNIO */,
 			);
 			productName = "trading-analyzer";
 			productReference = DF1CBC122D81806F00D8A38F /* trading-analyzer.app */;
@@ -203,6 +206,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
+				DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DF1CBC132D81806F00D8A38F /* Products */;
@@ -568,6 +572,14 @@
 				minimumVersion = 0.10.0;
 			};
 		};
+		DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/vapor/postgres-nio";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.25.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -575,6 +587,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */;
 			productName = SwiftCSV;
+		};
+		DFD9FE202D81B9C9005F0C90 /* PostgresNIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */;
+			productName = PostgresNIO;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

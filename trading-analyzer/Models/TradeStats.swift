@@ -1,13 +1,17 @@
-//
-//  TraderStats.swift
-//  trading-analyzer
-//
-//  Created by Qiwei Li on 3/12/25.
-//
-
 import Foundation
 
-struct TradeStats: Decodable {
+struct TokenInfo: Codable {
+    let Addr: String
+    let Alias: String
+    let Symbol: String
+    let Decimals: Int
+
+    var alias: String { Alias }
+    var symbol: String { Symbol }
+    var decimals: Int { Decimals }
+}
+
+struct TradeStats: Codable {
     let tradeTaskId: Int
     let collectTime: String
     let runningTime: Int
@@ -23,24 +27,24 @@ struct TradeStats: Decodable {
     let successTxCount: Int
     let notConfirmTxCount: Int
     let revertedTxCount: Int
-    let avgGasFeePerSuccessTx: Int
-    let avgGasFeePerTx: Int
-    let avgTipPerSuccessTx: Int
+    let avgGasFeePerSuccessTx: Int64
+    let avgGasFeePerTx: Int64
+    let avgTipPerSuccessTx: Int64
     let currentQuoteTokenCostMap: [String: String]
     let cumulativeQuoteTokenCostMap: [String: String]
     let lowestQuoteTokenCostMap: [String: String]
     let highestProfitByOneTradeMap: [String: String]
     let highestProfitRatioByOneTradeMap: [String: Int]
-    let totalGasFee: Int
-    let totalTip: Int
-    let nativeTokenCumulativePnl: Int
-    let maxNativeTokenProfit: Int
-    let maxNativeTokenLoss: Int
+    let totalGasFee: Int64
+    let totalTip: Int64
+    let nativeTokenCumulativePnl: Int64
+    let maxNativeTokenProfit: Int64
+    let maxNativeTokenLoss: Int64
     let cumulativePnlMap: [String: String]
     let maxProfitMap: [String: String]
     let maxLossMap: [String: String]
     let launchedMarketPositionCount: Int
-    let extra: [String: AnyCodable]
+    let extra: [String: String]
     let nativeQuoteTokenInfo: TokenInfo
     let quoteTokenInfoMap: [String: TokenInfo]
 
@@ -80,49 +84,5 @@ struct TradeStats: Decodable {
         case extra
         case nativeQuoteTokenInfo = "native_quote_token_info"
         case quoteTokenInfoMap = "quote_token_info_map"
-    }
-}
-
-struct TokenInfo: Decodable {
-    let addr: String
-    let alias: String
-    let symbol: String
-    let decimals: Int
-
-    enum CodingKeys: String, CodingKey {
-        case addr = "Addr"
-        case alias = "Alias"
-        case symbol = "Symbol"
-        case decimals = "Decimals"
-    }
-}
-
-// Helper struct to handle any JSON value type
-struct AnyCodable: Decodable {
-    let value: Any
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-
-        if container.decodeNil() {
-            self.value = NSNull()
-        } else if let bool = try? container.decode(Bool.self) {
-            self.value = bool
-        } else if let int = try? container.decode(Int.self) {
-            self.value = int
-        } else if let double = try? container.decode(Double.self) {
-            self.value = double
-        } else if let string = try? container.decode(String.self) {
-            self.value = string
-        } else if let array = try? container.decode([AnyCodable].self) {
-            self.value = array.map { $0.value }
-        } else if let dictionary = try? container.decode([String: AnyCodable].self) {
-            self.value = dictionary.mapValues { $0.value }
-        } else {
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "AnyCodable cannot decode value"
-            )
-        }
     }
 }

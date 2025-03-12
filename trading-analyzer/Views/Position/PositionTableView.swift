@@ -8,8 +8,21 @@ import SwiftUI
 
 struct PositionTableView: View {
     let positions: [PositionData]
+    let positionTradingFile: URL
+    let postgresService: PostgresService
+
     @State private var sortOrder = [KeyPathComparator(\PositionData.pnlRatio, order: .reverse)]
     @State private var selection: PositionData.ID? = nil
+    @State private var selectedPosition: PositionData? = nil
+    @State private var showingPositionDetail = false
+
+    @State private var positionTrades: [PositionTradeData] = []
+    @State private var priceData: [PriceData] = []
+    @State private var isLoadingTrades = false
+    @State private var tradeLoadError: Error? = nil
+
+    @Environment(AlertManager.self) var alert
+    @Environment(\.openWindow) var openWindow
 
     private var sortedPositions: [PositionData] {
         return positions.sorted(using: sortOrder)
@@ -27,13 +40,72 @@ struct PositionTableView: View {
             maxLossColumn
             createdColumn
             updatedColumn
-        }.contextMenu(forSelectionType: UUID.self) { items in
+        }
+        .contextMenu(forSelectionType: UUID.self) { items in
             if let selectedID = selection, items.contains(selectedID) {
                 Button("View Details") {
-                    // Action for the selected item
-                    print("Selected: \(selectedID)")
+                    if let position = positions.first(where: { $0.id == selectedID }) {
+                        selectedPosition = position
+                        loadPositionTrades(for: position)
+                    }
                 }
             }
+        }
+        .sheet(isPresented: $showingPositionDetail) {
+            if let position = selectedPosition {
+                PositionDetailView(
+                    position: position,
+                    trades: positionTrades,
+                    priceData: priceData
+                )
+                .frame(minWidth: 600)
+            }
+        }
+    }
+
+    private func loadPositionTrades(for position: PositionData) {
+        isLoadingTrades = true
+        tradeLoadError = nil
+
+        Task {
+            do {
+                // Load trades for this position
+                let allTrades = try await CSVParserService.parsePositionTradeData(
+                    from: positionTradingFile)
+                positionTrades = allTrades.filter { $0.marketId == position.marketId }
+
+                // Load price data if we have a PostgreSQL connection
+                if postgresService.isConnected {
+                    // Calculate date range for price data
+                    // Use 1 day before first trade to 1 day after last trade
+                    if let firstTradeDate = positionTrades.map({ $0.confirmTime }).min(),
+                       let lastTradeDate = positionTrades.map({ $0.confirmTime }).max()
+                    {
+                        let startDate =
+                            Calendar.current.date(byAdding: .day, value: -1, to: firstTradeDate)
+                                ?? firstTradeDate
+                        let endDate =
+                            Calendar.current.date(byAdding: .day, value: 1, to: lastTradeDate)
+                                ?? lastTradeDate
+
+                        priceData = try await postgresService.fetchPriceData(
+                            forMarketId: position.marketId,
+                            startDate: startDate,
+                            endDate: endDate
+                        )
+                    }
+                } else {
+                    openWindow(id: "settings")
+                    return
+                }
+
+                // Show the detail view
+                showingPositionDetail = true
+            } catch {
+                alert.showAlert(message: "Error loading position trades: \(error.localizedDescription)")
+            }
+
+            isLoadingTrades = false
         }
     }
 }
@@ -51,7 +123,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var pnlRatioColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("PnL Ratio", value: \.pnlRatio) { position in
-            Text("\(position.pnlRatio)%")
+            Text("\(Double(position.pnlRatio) / 100.0)%")
                 .foregroundStyle(position.pnlRatio >= 0 ? .green : .red)
         }
     }
@@ -72,10 +144,9 @@ extension PositionTableView {
     }
 
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
-    var maxProfitRatioColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>>
-    {
+    var maxProfitRatioColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("Max Profit Ratio", value: \.maxProfitRatio) { position in
-            Text("\(position.maxProfitRatio)%")
+            Text("\(Double(position.maxProfitRatio) / 100.0)%")
                 .foregroundStyle(.green)
         }
     }
@@ -91,7 +162,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var maxLossRatioColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("Max Loss Ratio", value: \.maxLossRatio) { position in
-            Text("\(position.maxLossRatio)%")
+            Text("\(Double(position.maxLossRatio) / 100.0)%")
                 .foregroundStyle(.red)
         }
     }
