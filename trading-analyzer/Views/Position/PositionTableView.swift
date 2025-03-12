@@ -40,6 +40,7 @@ struct PositionTableView: View {
             createdColumn
             updatedColumn
         }
+
         .contextMenu(forSelectionType: UUID.self) { items in
             if let selectedID = selection, items.contains(selectedID) {
                 Button("View Details") {
@@ -49,6 +50,14 @@ struct PositionTableView: View {
                             await loadPositionTrades(for: position)
                         }
                     }
+                }
+            }
+        } primaryAction: { items in
+            let first = items.first
+            if let position = positions.first(where: { $0.id == first }) {
+                Task {
+                    selectedPosition = position
+                    await loadPositionTrades(for: position)
                 }
             }
         }

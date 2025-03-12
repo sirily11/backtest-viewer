@@ -5,19 +5,14 @@ struct PriceChartView: View {
     let priceData: [PriceData]
     let trades: [PositionTradeData]
 
-    @State private var selectedTrade: PositionTradeData?
-    @State private var selectedPrice: PriceData?
-    @State private var hoverLocation: CGPoint?
-    @State private var indicatorPosition: CGPoint?
-    @State private var indicatorPrice: Double?
-    @State private var indicatorDate: Date?
-
     // Add state for visible date range
     @State private var visibleDateRange: ClosedRange<Date>?
     @State private var initialZoomSet = false
     @State private var scale: CGFloat = 1.0
     @State private var dragOffset: CGFloat = 0.0
     @State private var lastDragValue: CGFloat = 0.0
+
+    @State var rawSelectedDate: Date?
 
     private func isDateInRange(_ date: Date) -> Bool {
         guard let range = visibleDateRange else { return true }
@@ -26,6 +21,16 @@ struct PriceChartView: View {
 
     private var priceInRange: [PriceData] {
         priceData.filter { isDateInRange($0.timeSecond) }
+    }
+
+    private var selectedPrice: PriceData? {
+        guard let rawDate = rawSelectedDate else { return nil }
+        return findClosestPriceData(to: rawDate)
+    }
+
+    private var selectedTrade: PositionTradeData? {
+        guard let rawDate = rawSelectedDate else { return nil }
+        return findClosestTrade(to: rawDate)
     }
 
     var body: some View {
@@ -38,7 +43,7 @@ struct PriceChartView: View {
                 Button(action: {
                     resetZoom()
                 }) {
-                    Label("Reset", systemImage: "arrow.counterclockwise")
+                    Image(systemName: "arrow.counterclockwise")
                         .font(.caption)
                 }
 
@@ -150,34 +155,6 @@ struct PriceChartView: View {
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
                 }
 
-                // Add indicator point for selected price
-                if let indicatorDate = indicatorDate, let indicatorPrice = indicatorPrice {
-                    PointMark(
-                        x: .value("Selected Time", indicatorDate),
-                        y: .value("Selected Price", indicatorPrice)
-                    )
-                    .foregroundStyle(Color.white)
-                    .symbolSize(100)
-                    .symbol(.circle)
-                    .annotation(position: .top) {
-                        Text(String(format: "%.4f", indicatorPrice))
-                            .font(.caption)
-                            .foregroundColor(.white)
-                            .padding(4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color.black.opacity(0.7))
-                            )
-                    }
-
-                    // Add vertical indicator line
-                    RuleMark(
-                        x: .value("Selected Time", indicatorDate)
-                    )
-                    .foregroundStyle(Color.gray.opacity(0.7))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                }
-
                 // Buy trades
                 ForEach(trades.filter { $0.isBuy }) { trade in
                     if isDateInRange(trade.confirmTime) {
@@ -201,7 +178,31 @@ struct PriceChartView: View {
                         .symbolSize(100)
                     }
                 }
+
+                if let selectedPrice {
+                    RuleMark(
+                        x: .value("Time", selectedPrice.timeSecond)
+                    )
+                    .foregroundStyle(Color.gray.opacity(0.2))
+                    .zIndex(-1)
+                    .annotation(
+                        position: .top, spacing: 0,
+                        overflowResolution: .init(
+                            x: .fit(to: .chart),
+                            y: .disabled
+                        )
+                    ) {
+                        if let selectedTrade,
+                           isVeryCloseToTrade(date: selectedPrice.timeSecond, trade: selectedTrade)
+                        {
+                            TooltipView(trade: selectedTrade)
+                        } else {
+                            PriceTooltipView(price: selectedPrice)
+                        }
+                    }
+                }
             }
+            .chartXSelection(value: $rawSelectedDate)
             .chartXAxis {
                 AxisMarks(values: .automatic) { _ in
                     AxisGridLine()
@@ -218,46 +219,6 @@ struct PriceChartView: View {
             }
             .chartXScale(domain: visibleDateRange ?? Date()...Date()) // Default to current date
             .frame(height: 300)
-            .chartOverlay { proxy in
-
-                Rectangle()
-                    .fill(Color.clear)
-                    .contentShape(Rectangle())
-                    .onHover { isHovering in
-                        if !isHovering {
-                            // Clear indicator when not hovering
-                            indicatorPosition = nil
-                            indicatorDate = nil
-                            indicatorPrice = nil
-                        }
-                    }
-                    .onContinuousHover { phase in
-                        switch phase {
-                        case .active(let location):
-                            indicatorPosition = location
-
-                            // Apply a manual offset to align the indicator with the cursor
-                            // Adjust this offset value as needed (-5 points to the left)
-                            let offsetX = location.x - 45
-
-                            // Find closest date directly from the adjusted x position
-                            if let date = proxy.value(atX: offsetX, as: Date.self) {
-                                // Use the exact date from the cursor position with offset
-                                indicatorDate = date
-
-                                // Find the closest price data point
-                                if let closestPrice = findClosestPriceData(to: date) {
-                                    indicatorPrice = closestPrice.avgPriceInSol
-                                }
-                            }
-                        case .ended:
-                            // Clear indicator when hover ends
-                            indicatorPosition = nil
-                            indicatorDate = nil
-                            indicatorPrice = nil
-                        }
-                    }
-            }
         }
     }
 }
@@ -371,42 +332,30 @@ extension PriceChartView {
 extension PriceChartView {
     // Enhanced version to detect if we're hovering over a trade point
     func findClosestTrade(
-        to date: Date, price: Double, proxy: ChartProxy, location: CGPoint, geometry: GeometryProxy
+        to date: Date
     ) -> PositionTradeData? {
         guard !trades.isEmpty else { return nil }
 
-        // Find trades that are within the visible range
-        let visibleTrades = trades.filter { isDateInRange($0.confirmTime) }
-
-        // Find the closest trade by time first
-        let closestByTime = visibleTrades.min(by: {
+        // Find the closest trade
+        let closestTrade = trades.min(by: {
             abs($0.confirmTime.timeIntervalSince(date))
                 < abs($1.confirmTime.timeIntervalSince(date))
         })
 
-        guard let closestTrade = closestByTime else { return nil }
-
-        // Check if we're close enough in time (increased from 10 to 15 minutes)
-        let timeThreshold = 15 * 60.0 // 15 minutes (increased from 10)
-        if abs(closestTrade.confirmTime.timeIntervalSince(date)) > timeThreshold {
-            return nil
+        // Check if the closest trade is within a reasonable time threshold
+        // If the time difference is more than 5 seconds, return nil
+        if let trade = closestTrade,
+           abs(trade.confirmTime.timeIntervalSince(date)) <= 5
+        {
+            return trade
         }
 
-        // Check if we're close enough in price (increased from 15% to 20%)
-        let tradePrice = calculateTradePrice(closestTrade)
-        let priceDifference = abs(tradePrice - price)
-        let priceThreshold = tradePrice * 0.20 // 20% of the trade price (increased from 15%)
-
-        if priceDifference > priceThreshold {
-            return nil
-        }
-
-        // If we're close in both time and price, return the trade
-        return closestTrade
+        return nil
     }
 
-    // Add a helper function to prevent rapid tooltip switching
-    private var activeTradeId: UUID? {
-        selectedTrade?.id
+    // Helper function to determine if a date is very close to a trade
+    func isVeryCloseToTrade(date: Date, trade: PositionTradeData) -> Bool {
+        // Consider "very close" to be within 1 second
+        return abs(date.timeIntervalSince(trade.confirmTime)) < 1.0
     }
 }

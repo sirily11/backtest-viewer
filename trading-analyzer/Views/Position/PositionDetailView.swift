@@ -52,12 +52,17 @@ struct PositionDetailView: View {
         VStack(spacing: 12) {
             HStack {
                 Spacer()
-                Button("Close") {
+                Button(action: {
                     dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.gray)
                 }
+                .buttonBorderShape(.circle)
             }
             HStack {
                 Text(position.marketId)
+                    .textSelection(.enabled)
                     .font(.system(.headline, design: .monospaced))
                     .lineLimit(1)
 
@@ -176,7 +181,7 @@ struct PositionDetailView: View {
                         let profitableTrades = trades.filter { !$0.isBuy && $0.actualPnl > 0 }
                         let profitableRatio =
                             Double(profitableTrades.count)
-                            / Double(trades.filter { !$0.isBuy }.count) * 100.0
+                                / Double(trades.filter { !$0.isBuy }.count) * 100.0
 
                         statRow(title: "Profitable Sells", value: "\(profitableTrades.count)")
                         statRow(
