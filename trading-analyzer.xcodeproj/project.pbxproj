@@ -1,0 +1,582 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DF1CBC242D81807000D8A38F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DF1CBC0A2D81806F00D8A38F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF1CBC112D81806F00D8A38F;
+			remoteInfo = "trading-analyzer";
+		};
+		DF1CBC2E2D81807000D8A38F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DF1CBC0A2D81806F00D8A38F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DF1CBC112D81806F00D8A38F;
+			remoteInfo = "trading-analyzer";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		DF1CBC122D81806F00D8A38F /* trading-analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "trading-analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF1CBC232D81807000D8A38F /* trading-analyzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "trading-analyzerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF1CBC2D2D81807000D8A38F /* trading-analyzerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "trading-analyzerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		DF1CBC142D81806F00D8A38F /* trading-analyzer */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "trading-analyzer";
+			sourceTree = "<group>";
+		};
+		DF1CBC262D81807000D8A38F /* trading-analyzerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "trading-analyzerTests";
+			sourceTree = "<group>";
+		};
+		DF1CBC302D81807000D8A38F /* trading-analyzerUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "trading-analyzerUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DF1CBC0F2D81806F00D8A38F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC202D81807000D8A38F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC2A2D81807000D8A38F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DF1CBC092D81806F00D8A38F = {
+			isa = PBXGroup;
+			children = (
+				DF1CBC142D81806F00D8A38F /* trading-analyzer */,
+				DF1CBC262D81807000D8A38F /* trading-analyzerTests */,
+				DF1CBC302D81807000D8A38F /* trading-analyzerUITests */,
+				DF1CBC132D81806F00D8A38F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DF1CBC132D81806F00D8A38F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DF1CBC122D81806F00D8A38F /* trading-analyzer.app */,
+				DF1CBC232D81807000D8A38F /* trading-analyzerTests.xctest */,
+				DF1CBC2D2D81807000D8A38F /* trading-analyzerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DF1CBC112D81806F00D8A38F /* trading-analyzer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF1CBC372D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzer" */;
+			buildPhases = (
+				DF1CBC0E2D81806F00D8A38F /* Sources */,
+				DF1CBC0F2D81806F00D8A38F /* Frameworks */,
+				DF1CBC102D81806F00D8A38F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DF1CBC142D81806F00D8A38F /* trading-analyzer */,
+			);
+			name = "trading-analyzer";
+			packageProductDependencies = (
+				DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */,
+			);
+			productName = "trading-analyzer";
+			productReference = DF1CBC122D81806F00D8A38F /* trading-analyzer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DF1CBC222D81807000D8A38F /* trading-analyzerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF1CBC3A2D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzerTests" */;
+			buildPhases = (
+				DF1CBC1F2D81807000D8A38F /* Sources */,
+				DF1CBC202D81807000D8A38F /* Frameworks */,
+				DF1CBC212D81807000D8A38F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DF1CBC252D81807000D8A38F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DF1CBC262D81807000D8A38F /* trading-analyzerTests */,
+			);
+			name = "trading-analyzerTests";
+			packageProductDependencies = (
+			);
+			productName = "trading-analyzerTests";
+			productReference = DF1CBC232D81807000D8A38F /* trading-analyzerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		DF1CBC2C2D81807000D8A38F /* trading-analyzerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF1CBC3D2D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzerUITests" */;
+			buildPhases = (
+				DF1CBC292D81807000D8A38F /* Sources */,
+				DF1CBC2A2D81807000D8A38F /* Frameworks */,
+				DF1CBC2B2D81807000D8A38F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DF1CBC2F2D81807000D8A38F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				DF1CBC302D81807000D8A38F /* trading-analyzerUITests */,
+			);
+			name = "trading-analyzerUITests";
+			packageProductDependencies = (
+			);
+			productName = "trading-analyzerUITests";
+			productReference = DF1CBC2D2D81807000D8A38F /* trading-analyzerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DF1CBC0A2D81806F00D8A38F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1610;
+				LastUpgradeCheck = 1610;
+				TargetAttributes = {
+					DF1CBC112D81806F00D8A38F = {
+						CreatedOnToolsVersion = 16.1;
+					};
+					DF1CBC222D81807000D8A38F = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = DF1CBC112D81806F00D8A38F;
+					};
+					DF1CBC2C2D81807000D8A38F = {
+						CreatedOnToolsVersion = 16.1;
+						TestTargetID = DF1CBC112D81806F00D8A38F;
+					};
+				};
+			};
+			buildConfigurationList = DF1CBC0D2D81806F00D8A38F /* Build configuration list for PBXProject "trading-analyzer" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DF1CBC092D81806F00D8A38F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = DF1CBC132D81806F00D8A38F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DF1CBC112D81806F00D8A38F /* trading-analyzer */,
+				DF1CBC222D81807000D8A38F /* trading-analyzerTests */,
+				DF1CBC2C2D81807000D8A38F /* trading-analyzerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DF1CBC102D81806F00D8A38F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC212D81807000D8A38F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC2B2D81807000D8A38F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DF1CBC0E2D81806F00D8A38F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC1F2D81807000D8A38F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DF1CBC292D81807000D8A38F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DF1CBC252D81807000D8A38F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF1CBC112D81806F00D8A38F /* trading-analyzer */;
+			targetProxy = DF1CBC242D81807000D8A38F /* PBXContainerItemProxy */;
+		};
+		DF1CBC2F2D81807000D8A38F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DF1CBC112D81806F00D8A38F /* trading-analyzer */;
+			targetProxy = DF1CBC2E2D81807000D8A38F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		DF1CBC352D81807000D8A38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		DF1CBC362D81807000D8A38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		DF1CBC382D81807000D8A38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "trading-analyzer/trading_analyzer.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"trading-analyzer/Preview Content\"";
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DF1CBC392D81807000D8A38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "trading-analyzer/trading_analyzer.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"trading-analyzer/Preview Content\"";
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzer";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DF1CBC3B2D81807000D8A38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/trading-analyzer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/trading-analyzer";
+			};
+			name = Debug;
+		};
+		DF1CBC3C2D81807000D8A38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/trading-analyzer.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/trading-analyzer";
+			};
+			name = Release;
+		};
+		DF1CBC3E2D81807000D8A38F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "trading-analyzer";
+			};
+			name = Debug;
+		};
+		DF1CBC3F2D81807000D8A38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P9KK452K8P;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "rxlab.trading-analyzerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "trading-analyzer";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DF1CBC0D2D81806F00D8A38F /* Build configuration list for PBXProject "trading-analyzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF1CBC352D81807000D8A38F /* Debug */,
+				DF1CBC362D81807000D8A38F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF1CBC372D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF1CBC382D81807000D8A38F /* Debug */,
+				DF1CBC392D81807000D8A38F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF1CBC3A2D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF1CBC3B2D81807000D8A38F /* Debug */,
+				DF1CBC3C2D81807000D8A38F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DF1CBC3D2D81807000D8A38F /* Build configuration list for PBXNativeTarget "trading-analyzerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DF1CBC3E2D81807000D8A38F /* Debug */,
+				DF1CBC3F2D81807000D8A38F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swiftcsv/SwiftCSV";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */;
+			productName = SwiftCSV;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = DF1CBC0A2D81806F00D8A38F /* Project object */;
+}
