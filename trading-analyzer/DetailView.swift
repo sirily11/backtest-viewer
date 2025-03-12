@@ -31,14 +31,9 @@ struct DetailView: View {
                     Label("General", systemImage: "info.circle")
                 }
 
-            PositionView(file: positionFile)
+            PositionView(positionFile: positionFile, positionTradingFile: positionTradingFile)
                 .tabItem {
                     Label("Position", systemImage: "chart.bar.xaxis")
-                }
-
-            Text("Position Trading View")
-                .tabItem {
-                    Label("Position Trading", systemImage: "clock.fill")
                 }
         }
         .frame(minWidth: 400, minHeight: 300)

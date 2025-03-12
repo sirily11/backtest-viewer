@@ -59,7 +59,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var pnlColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("PnL", value: \.pnl) { position in
-            Text("\(position.pnl)")
+            Text(position.pnl.lamportsToSol().formattedSol())
                 .foregroundStyle(position.pnl >= 0 ? .green : .red)
         }
     }
@@ -67,7 +67,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var costColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("Cost", value: \.cost) { position in
-            Text("\(position.cost)")
+            Text(position.cost.lamportsToSol().formattedSol())
         }
     }
 
@@ -83,7 +83,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var maxProfitColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("Max Profit", value: \.maxProfit) { position in
-            Text("\(position.maxProfit)")
+            Text(position.maxProfit.lamportsToSol().formattedSol())
                 .foregroundStyle(.green)
         }
     }
@@ -99,7 +99,7 @@ extension PositionTableView {
     @TableColumnBuilder<PositionData, KeyPathComparator<PositionData>>
     var maxLossColumn: some TableColumnContent<PositionData, KeyPathComparator<PositionData>> {
         TableColumn("Max Loss", value: \.maxLoss) { position in
-            Text("\(position.maxLoss)")
+            Text(position.maxLoss.lamportsToSol().formattedSol())
                 .foregroundStyle(.red)
         }
     }

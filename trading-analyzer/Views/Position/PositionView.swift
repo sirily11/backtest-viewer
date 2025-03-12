@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct PositionView: View {
-    let file: URL
+    let positionFile: URL
+    let positionTradingFile: URL
+
     @State private var positions: [PositionData] = []
     @State private var isLoading = true
     @State private var error: Error?
@@ -52,7 +54,7 @@ struct PositionView: View {
         .task {
             await loadPositions()
         }
-        .onChange(of: file) { _, _ in
+        .onChange(of: positionFile) { _, _ in
             Task {
                 await loadPositions()
             }
@@ -64,7 +66,7 @@ struct PositionView: View {
         error = nil
 
         do {
-            positions = try await CSVParserService.parsePositionData(from: file)
+            positions = try await CSVParserService.parsePositionData(from: positionFile)
         } catch {
             self.error = error
             print("Error loading positions: \(error)")
