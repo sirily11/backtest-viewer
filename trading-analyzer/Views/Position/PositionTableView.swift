@@ -5,11 +5,13 @@
 //  Created by Qiwei Li on 3/12/25.
 //
 import SwiftUI
+import TabularData
 
 struct PositionTableView: View {
+    let datasetName: String
     let positions: [PositionData]
     let positionTradingFile: URL
-    let postgresService: PostgresService
+    @Environment(DuckDBService.self) var duckDBService
 
     @State private var sortOrder = [KeyPathComparator(\PositionData.pnlRatio, order: .reverse)]
     @State private var selection: PositionData.ID? = nil
@@ -22,6 +24,7 @@ struct PositionTableView: View {
 
     @Environment(AlertManager.self) var alert
     @Environment(\.openWindow) var openWindow
+    @AppStorage("data-folder") private var dataFolder = ""
 
     private var sortedPositions: [PositionData] {
         return positions.sorted(using: sortOrder)
@@ -85,28 +88,10 @@ struct PositionTableView: View {
                 from: positionTradingFile)
             positionTrades = allTrades.filter { $0.marketId == position.marketId }
 
-            // Load price data if we have a PostgreSQL connection
-            if postgresService.isConnected {
-                // Calculate date range for price data
-                // Use 1 day before first trade to 1 day after last trade
-                if let firstTradeDate = positionTrades.map({ $0.confirmTime }).min(),
-                   let lastTradeDate = positionTrades.map({ $0.confirmTime }).max()
-                {
-                    let startDate =
-                        Calendar.current.date(byAdding: .day, value: -1, to: firstTradeDate)
-                            ?? firstTradeDate
-                    let endDate =
-                        Calendar.current.date(byAdding: .day, value: 1, to: lastTradeDate)
-                            ?? lastTradeDate
-
-                    priceData = try await postgresService.fetchPriceData(
-                        forMarketId: position.marketId,
-                        startDate: startDate,
-                        endDate: endDate
-                    )
-                }
-            } else {
-                return
+            // Load price data from duckdb
+            if let url = URL(string: dataFolder) {
+                try await duckDBService.loadDataset(filePath: url.appendingPathComponent(datasetName + ".parquet"))
+                priceData = try await duckDBService.fetchPriceData(forMarketId: position.marketId)
             }
 
         } catch {

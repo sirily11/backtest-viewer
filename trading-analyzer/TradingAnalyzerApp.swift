@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 
 @main
 struct TradingAnalyzerApp: App {
-    @State private var postgresService = PostgresService()
+    @State private var duckDBService = DuckDBService()
     @State private var alertManager = AlertManager()
     @Environment(\.openWindow) var open
 
@@ -16,29 +16,30 @@ struct TradingAnalyzerApp: App {
 
     @State private var isOpenFolder = false
 
-    init() {
-        let service = PostgresService()
-        _postgresService = State(initialValue: service)
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(postgresService)
+                .environment(duckDBService)
                 .environment(alertManager)
                 .task {
                     // Connect to PostgreSQL if we have a connection string
-                    await postgresService.connect(host: host, port: port, username: username, password: password, database: database)
+                    do {
+                        try duckDBService.initDatabase()
+                    } catch {
+                        alertManager.showAlert(message: error.localizedDescription)
+                    }
                 }
         }
 
         Window("Settings", id: "settings") {
             SettingsView()
-                .environment(postgresService)
+                .environment(duckDBService)
+                .environment(alertManager)
         }
+        .windowResizability(.contentSize)
         .commands {
             CommandGroup(replacing: CommandGroupPlacement.appSettings) {
-                Button("Postgres Connection") {
+                Button("Settings") {
                     // Open the settings window
                     open(id: "settings")
                 }

@@ -70,6 +70,9 @@
         }
       }
     },
+    "Change folder" : {
+
+    },
     "Chart" : {
       "localizations" : {
         "zh-Hans" : {
@@ -81,6 +84,7 @@
       }
     },
     "Connected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -91,6 +95,7 @@
       }
     },
     "Connection Status:" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -130,7 +135,11 @@
         }
       }
     },
+    "Current data folder:" : {
+
+    },
     "Database" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -141,6 +150,7 @@
       }
     },
     "Database Connection" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -151,6 +161,7 @@
       }
     },
     "Disconnected" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -159,6 +170,9 @@
           }
         }
       }
+    },
+    "DuckDB Settings" : {
+
     },
     "Error loading data" : {
       "localizations" : {
@@ -201,6 +215,7 @@
       }
     },
     "Host" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -300,6 +315,9 @@
         }
       }
     },
+    "No folder selected" : {
+
+    },
     "No position data available" : {
       "localizations" : {
         "zh-Hans" : {
@@ -361,6 +379,7 @@
       }
     },
     "Password" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -411,6 +430,7 @@
       }
     },
     "Port" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -461,6 +481,7 @@
       }
     },
     "Postgres Connection" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -561,6 +582,7 @@
       }
     },
     "Save Settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -681,6 +703,7 @@
       }
     },
     "Username" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

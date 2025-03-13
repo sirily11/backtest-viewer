@@ -31,7 +31,7 @@ struct DetailView: View {
                     Label("General", systemImage: "info.circle")
                 }
 
-            PositionView(positionFile: positionFile, positionTradingFile: positionTradingFile)
+            PositionView(datasetName: folder.lastPathComponent, positionFile: positionFile, positionTradingFile: positionTradingFile)
                 .tabItem {
                     Label("Position", systemImage: "chart.bar.xaxis")
                 }

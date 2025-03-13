@@ -156,9 +156,13 @@ struct PriceChartView: View {
                         x: .value("Time", price.timeSecond),
                         y: .value("Price", price.avgPriceInSol)
                     )
-                    .foregroundStyle(.blue.opacity(0.3))
+                    .foregroundStyle(.blue)
                     .interpolationMethod(.catmullRom)
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+
+                    AreaMark(x: .value("Time", price.timeSecond),
+                             y: .value("Price", price.avgPriceInSol))
+                        .foregroundStyle(.blue.opacity(0.6))
                 }
 
                 // Buy trades

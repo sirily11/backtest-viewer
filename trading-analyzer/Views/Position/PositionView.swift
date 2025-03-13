@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct PositionView: View {
+    let datasetName: String
     let positionFile: URL
     let positionTradingFile: URL
-    @Environment(PostgresService.self) var postgresService
+    @Environment(DuckDBService.self) var duckDBService
 
     @State private var positions: [PositionData] = []
     @State private var isLoading = true
@@ -50,9 +51,9 @@ struct PositionView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 PositionTableView(
+                    datasetName: datasetName,
                     positions: positions,
-                    positionTradingFile: positionTradingFile,
-                    postgresService: postgresService
+                    positionTradingFile: positionTradingFile
                 )
             }
         }

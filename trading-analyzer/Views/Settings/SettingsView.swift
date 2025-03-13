@@ -1,70 +1,47 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @AppStorage("postgres:host") private var host = "localhost"
-    @AppStorage("postgres:port") private var port = 5432
-    @AppStorage("postgres:username") private var username = ""
-    @AppStorage("postgres:password") private var password = ""
-    @AppStorage("postgres:database") private var database = ""
+    @AppStorage("data-folder") private var dataFolder = ""
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(PostgresService.self) private var model
-    @State private var isSaving = false
+    @Environment(DuckDBService.self) private var model
+    @State var showingFolderPicker = false
+    @Environment(AlertManager.self) private var alertManager
 
     var body: some View {
-        NavigationStack {
+        TabView {
             Form {
-                Section(header: Text("Database Connection")) {
-                    TextField("Host", text: $host)
-                    TextField("Port", value: $port, format: .number)
-
-                    TextField("Username", text: $username)
-                    SecureField("Password", text: $password)
-                    TextField("Database", text: $database)
-
-                    if let error = model.connectionError {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                    }
-
+                if let url = URL(string: dataFolder) {
                     HStack {
-                        Text("Connection Status:")
+                        Text("Current data folder:")
                         Spacer()
-                        if isSaving {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Text(
-                                model.isConnected ? "Connected" : "Disconnected"
-                            )
-                            .foregroundStyle(model.isConnected ? .green : .red)
+                        Text(url.path)
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    Text("No folder selected")
+                }
+                HStack {
+                    Spacer()
+                    Button("Change folder") {
+                        showingFolderPicker = true
+                    }
+                    .fileImporter(isPresented: $showingFolderPicker, allowedContentTypes: [.directory]) { result in
+                        switch result {
+                        case .success(let dictionary):
+                            dataFolder = dictionary.absoluteString
+                        case .failure(let error):
+                            alertManager.showAlert(message: error.localizedDescription)
                         }
                     }
                 }
-
-                Section {
-                    Button(action: {
-                        Task {
-                            isSaving = true
-                            await model.connect(
-                                host: host,
-                                port: port,
-                                username: username,
-                                password: password,
-                                database: database
-                            )
-                            isSaving = false
-                        }
-                    }) {
-                        Text("Save Settings")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .disabled(isSaving)
-                }
+            }
+            .tabItem {
+                Label("DuckDB Settings", systemImage: "info.circle")
             }
             .padding()
             .navigationTitle("Settings")
         }
+        .frame(maxWidth: 400, maxHeight: 300)
     }
 }
