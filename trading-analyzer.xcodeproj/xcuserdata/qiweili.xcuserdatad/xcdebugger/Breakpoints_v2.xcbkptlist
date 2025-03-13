@@ -14,8 +14,8 @@
             filePath = "trading-analyzer/Services/PostgresService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
+            startingLineNumber = "113"
+            endingLineNumber = "113"
             landmarkName = "fetchPriceData(forMarketId:startDate:endDate:)"
             landmarkType = "7">
          </BreakpointContent>

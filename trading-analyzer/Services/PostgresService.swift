@@ -4,15 +4,6 @@ import NIOCore
 import NIOPosix
 import PostgresNIO
 
-struct PriceData: Identifiable {
-    let id = UUID()
-    let timeSecond: Date
-    let avgPriceInSol: Double
-    let transactionCount: Int
-    let minPriceInSol: Double
-    let maxPriceInSol: Double
-}
-
 @Observable
 class PostgresService {
     private var eventLoopGroup: EventLoopGroup?

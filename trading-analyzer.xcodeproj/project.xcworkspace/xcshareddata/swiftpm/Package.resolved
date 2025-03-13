@@ -1,6 +1,15 @@
 {
-  "originHash" : "4317382b44e92550d38e96c96cacffcc8771bb02bfa2ef0fc9b04930dcd2e6be",
+  "originHash" : "935af74a564f8528e88120181f7ea05a7a3cb438915ebe2424d2119ac733b19f",
   "pins" : [
+    {
+      "identity" : "duckdb-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/duckdb/duckdb-swift",
+      "state" : {
+        "revision" : "26bcae65719a4919b0af6837c257e8f6fd538bd6",
+        "version" : "0.10.3"
+      }
+    },
     {
       "identity" : "postgres-nio",
       "kind" : "remoteSourceControl",

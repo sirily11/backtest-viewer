@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */; };
 		DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE202D81B9C9005F0C90 /* PostgresNIO */; };
+		DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE902D826DEB005F0C90 /* DuckDB */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,11 +51,6 @@
 			path = "trading-analyzerUITests";
 			sourceTree = "<group>";
 		};
-		DFD9FE882D81FDC5005F0C90 /* trading-analyzer Localizations */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "trading-analyzer Localizations";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +60,7 @@
 			files = (
 				DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */,
 				DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */,
+				DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,7 +84,6 @@
 		DF1CBC092D81806F00D8A38F = {
 			isa = PBXGroup;
 			children = (
-				DFD9FE882D81FDC5005F0C90 /* trading-analyzer Localizations */,
 				DF1CBC142D81806F00D8A38F /* trading-analyzer */,
 				DF1CBC262D81807000D8A38F /* trading-analyzerTests */,
 				DF1CBC302D81807000D8A38F /* trading-analyzerUITests */,
@@ -122,12 +118,12 @@
 			);
 			fileSystemSynchronizedGroups = (
 				DF1CBC142D81806F00D8A38F /* trading-analyzer */,
-				DFD9FE882D81FDC5005F0C90 /* trading-analyzer Localizations */,
 			);
 			name = "trading-analyzer";
 			packageProductDependencies = (
 				DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */,
 				DFD9FE202D81B9C9005F0C90 /* PostgresNIO */,
+				DFD9FE902D826DEB005F0C90 /* DuckDB */,
 			);
 			productName = "trading-analyzer";
 			productReference = DF1CBC122D81806F00D8A38F /* trading-analyzer.app */;
@@ -215,6 +211,7 @@
 			packageReferences = (
 				DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 				DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */,
+				DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DF1CBC132D81806F00D8A38F /* Products */;
@@ -588,6 +585,14 @@
 				minimumVersion = 1.25.0;
 			};
 		};
+		DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/duckdb/duckdb-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -600,6 +605,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */;
 			productName = PostgresNIO;
+		};
+		DFD9FE902D826DEB005F0C90 /* DuckDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */;
+			productName = DuckDB;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
