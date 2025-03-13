@@ -6,7 +6,7 @@ struct PriceChartView: View {
     let trades: [PositionTradeData]
 
     // Add state for visible date range
-    @State private var visibleDateRange: ClosedRange<Date>?
+    @State private var dataRange: ClosedRange<Date>?
     @State private var initialZoomSet = false
     @State private var scale: CGFloat = 1.0
     @State private var dragOffset: CGFloat = 0.0
@@ -16,12 +16,12 @@ struct PriceChartView: View {
     @State var rawSelectedDate: Date?
 
     private func isDateInRange(_ date: Date) -> Bool {
-        guard let range = visibleDateRange else { return true }
+        guard let range = dataRange else { return true }
         return range.contains(date)
     }
 
     private var priceInRange: [PriceData] {
-        priceData.filter { isDateInRange($0.timeSecond) }
+        priceData.filter { isDateInRange($0.timeSecond) || isDateInRange($0.timeSecond - 1) || isDateInRange($0.timeSecond + 1) }
     }
 
     private var selectedPrice: PriceData? {
@@ -160,9 +160,11 @@ struct PriceChartView: View {
                     .interpolationMethod(.catmullRom)
                     .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
 
-                    AreaMark(x: .value("Time", price.timeSecond),
-                             y: .value("Price", price.avgPriceInSol))
-                        .foregroundStyle(.blue.opacity(0.6))
+                    AreaMark(
+                        x: .value("Time", price.timeSecond),
+                        y: .value("Price", price.avgPriceInSol)
+                    )
+                    .foregroundStyle(.blue.opacity(0.6))
                 }
 
                 // Buy trades
@@ -227,7 +229,7 @@ struct PriceChartView: View {
                     AxisValueLabel()
                 }
             }
-            .chartXScale(domain: visibleDateRange ?? Date()...Date()) // Default to current date
+            .chartXScale(domain: dataRange ?? Date()...Date()) // Default to current date
             .frame(height: 300)
         }
     }
@@ -236,19 +238,6 @@ struct PriceChartView: View {
 // MARK: - Zoom and Pan Extensions
 
 extension PriceChartView {
-    func panChart(by deltaX: CGFloat) {
-        guard let currentRange = visibleDateRange else { return }
-
-        let currentSpan = currentRange.upperBound.timeIntervalSince(currentRange.lowerBound)
-        // Convert pixel delta to time delta (negative because dragging right should move view left)
-        let timeDelta = -Double(deltaX) * (currentSpan / 300) // Assuming chart width ~300
-
-        let newStart = currentRange.lowerBound.addingTimeInterval(timeDelta)
-        let newEnd = currentRange.upperBound.addingTimeInterval(timeDelta)
-
-        visibleDateRange = newStart...newEnd
-    }
-
     func setInitialDateRange() {
         guard !initialZoomSet, !trades.isEmpty else { return }
 
@@ -263,14 +252,14 @@ extension PriceChartView {
             let startDate = firstTradeTime.addingTimeInterval(-padding)
             let endDate = lastTradeTime.addingTimeInterval(padding)
 
-            visibleDateRange = startDate...endDate
+            dataRange = startDate...endDate
             initialZoomSet = true
         } else if !priceData.isEmpty {
             // Fallback to price data if no trades
             if let firstTime = priceData.map({ $0.timeSecond }).min(),
                let lastTime = priceData.map({ $0.timeSecond }).max()
             {
-                visibleDateRange = firstTime...lastTime
+                dataRange = firstTime...lastTime
                 initialZoomSet = true
             }
         }
@@ -282,7 +271,7 @@ extension PriceChartView {
     }
 
     func zoomIn() {
-        guard let currentRange = visibleDateRange else { return }
+        guard let currentRange = dataRange else { return }
 
         let currentSpan = currentRange.upperBound.timeIntervalSince(currentRange.lowerBound)
         let newSpan = currentSpan * 0.8 // Zoom in by 20%
@@ -291,11 +280,11 @@ extension PriceChartView {
         let newStart = midPoint.addingTimeInterval(-newSpan / 2)
         let newEnd = midPoint.addingTimeInterval(newSpan / 2)
 
-        visibleDateRange = newStart...newEnd
+        dataRange = newStart...newEnd
     }
 
     func zoomOut() {
-        guard let currentRange = visibleDateRange else { return }
+        guard let currentRange = dataRange else { return }
 
         let currentSpan = currentRange.upperBound.timeIntervalSince(currentRange.lowerBound)
         let newSpan = currentSpan * 1.2 // Zoom out by 20%
@@ -304,20 +293,7 @@ extension PriceChartView {
         let newStart = midPoint.addingTimeInterval(-newSpan / 2)
         let newEnd = midPoint.addingTimeInterval(newSpan / 2)
 
-        visibleDateRange = newStart...newEnd
-    }
-
-    func zoomChart(by factor: CGFloat) {
-        guard let currentRange = visibleDateRange else { return }
-
-        let currentSpan = currentRange.upperBound.timeIntervalSince(currentRange.lowerBound)
-        let newSpan = currentSpan / Double(factor)
-
-        let midPoint = currentRange.lowerBound.addingTimeInterval(currentSpan / 2)
-        let newStart = midPoint.addingTimeInterval(-newSpan / 2)
-        let newEnd = midPoint.addingTimeInterval(newSpan / 2)
-
-        visibleDateRange = newStart...newEnd
+        dataRange = newStart...newEnd
     }
 }
 
