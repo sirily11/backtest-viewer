@@ -2,7 +2,7 @@ import Charts
 import SwiftUI
 
 struct PriceChartView: View {
-    let priceData: [PriceData]
+    let marketId: String
     let trades: [PositionTradeData]
 
     // Add state for visible date range
@@ -11,6 +11,7 @@ struct PriceChartView: View {
     @State private var scale: CGFloat = 1.0
     @State private var dragOffset: CGFloat = 0.0
     @State private var lastDragValue: CGFloat = 0.0
+    @State private var priceData = [PriceData]()
     @Environment(\.openWindow) var openWindow
 
     @State var rawSelectedDate: Date?
@@ -18,10 +19,6 @@ struct PriceChartView: View {
     private func isDateInRange(_ date: Date) -> Bool {
         guard let range = dataRange else { return true }
         return range.contains(date)
-    }
-
-    private var priceInRange: [PriceData] {
-        priceData.filter { isDateInRange($0.timeSecond) || isDateInRange($0.timeSecond - 1) || isDateInRange($0.timeSecond + 1) }
     }
 
     private var selectedPrice: PriceData? {
@@ -151,7 +148,7 @@ struct PriceChartView: View {
         ZStack(alignment: .topLeading) {
             Chart {
                 // Price area chart with line
-                ForEach(priceInRange) { price in
+                ForEach(priceData) { price in
                     LineMark(
                         x: .value("Time", price.timeSecond),
                         y: .value("Price", price.avgPriceInSol)
@@ -267,6 +264,7 @@ extension PriceChartView {
 
     func resetZoom() {
         initialZoomSet = false
+        scale = 1.0
         setInitialDateRange()
     }
 
@@ -281,6 +279,9 @@ extension PriceChartView {
         let newEnd = midPoint.addingTimeInterval(newSpan / 2)
 
         dataRange = newStart...newEnd
+
+        // Increase scale factor when zooming in
+        scale = min(5.0, scale * 1.2)
     }
 
     func zoomOut() {
@@ -294,6 +295,9 @@ extension PriceChartView {
         let newEnd = midPoint.addingTimeInterval(newSpan / 2)
 
         dataRange = newStart...newEnd
+
+        // Decrease scale factor when zooming out
+        scale = max(0.2, scale * 0.8)
     }
 }
 
@@ -305,11 +309,16 @@ extension PriceChartView {
     }
 
     func findClosestPriceData(to date: Date) -> PriceData? {
-        guard !priceData.isEmpty else { return nil }
-
-        return priceData.min(by: {
-            abs($0.timeSecond.timeIntervalSince(date)) < abs($1.timeSecond.timeIntervalSince(date))
-        })
+//        guard !priceData.isEmpty else { return nil }
+//
+//        // When zoomed in (high scale), use the full dataset for more precision
+//        // When zoomed out (low scale), use the downsampled data for performance
+//        let dataToSearch = scale > 1.5 ? priceData : downsampledPriceData
+//
+//        return dataToSearch.min(by: {
+//            abs($0.timeSecond.timeIntervalSince(date)) < abs($1.timeSecond.timeIntervalSince(date))
+//        })
+        return nil
     }
 }
 

@@ -19,7 +19,6 @@ struct PositionTableView: View {
     @State private var showingPositionDetail = false
 
     @State private var positionTrades: [PositionTradeData] = []
-    @State private var priceData: [PriceData] = []
     @State private var isLoadingTrades = false
 
     @Environment(AlertManager.self) var alert
@@ -68,8 +67,7 @@ struct PositionTableView: View {
             Group {
                 PositionLoadingView(
                     position: selectedPosition,
-                    trades: positionTrades,
-                    priceData: priceData
+                    trades: positionTrades
                 )
                 .frame(minWidth: 600, minHeight: 600)
             }
@@ -91,7 +89,6 @@ struct PositionTableView: View {
             // Load price data from duckdb
             if let url = URL(string: dataFolder) {
                 try await duckDBService.loadDataset(filePath: url.appendingPathComponent(datasetName + ".parquet"))
-                priceData = try await duckDBService.fetchPriceData(forMarketId: position.marketId)
             }
 
         } catch {
