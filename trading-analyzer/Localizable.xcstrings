@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "%lf%%" : {
 
     },
@@ -225,6 +228,9 @@
         }
       }
     },
+    "Index" : {
+
+    },
     "Individual results" : {
       "localizations" : {
         "zh-Hans" : {
@@ -234,6 +240,9 @@
           }
         }
       }
+    },
+    "Interval:" : {
+
     },
     "Market ID" : {
       "localizations" : {
@@ -633,6 +642,7 @@
       }
     },
     "Time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

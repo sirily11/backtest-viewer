@@ -15,22 +15,35 @@ struct PriceData: Identifiable {
     let maxPriceInSol: Double
 }
 
-enum PriceDataInterval {
+enum PriceDataInterval: String, CaseIterable {
     case oneSecond
     case fifteenSeconds
     case oneMinute
     case fiveMinutes
+
+    var displayName: String {
+        switch self {
+        case .oneSecond:
+            return "1s"
+        case .fifteenSeconds:
+            return "15s"
+        case .oneMinute:
+            return "1m"
+        case .fiveMinutes:
+            return "5m"
+        }
+    }
 
     static func initFromDateRange(from startDate: Date, to endDate: Date) -> PriceDataInterval {
         // Calculate the time difference between dates in seconds
         let timeInterval = endDate.timeIntervalSince(startDate)
 
         // Choose the appropriate interval based on the time span
-        if timeInterval <= 300 { // 5 minutes or less
+        if timeInterval <= 300 {  // 5 minutes or less
             return .oneSecond
-        } else if timeInterval <= 3600 { // 1 hour or less
+        } else if timeInterval <= 3600 {  // 1 hour or less
             return .fifteenSeconds
-        } else if timeInterval <= 86400 { // 1 day or less
+        } else if timeInterval <= 86400 {  // 1 day or less
             return .oneMinute
         } else {
             return .fiveMinutes
