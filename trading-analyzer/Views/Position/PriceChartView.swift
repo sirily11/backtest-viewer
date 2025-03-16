@@ -141,16 +141,6 @@ struct PriceChartView: View {
         .onAppear {
             setInitialDateRange()
         }
-        .task {
-            do {
-                try await fetchPriceData(
-                    startDate: visibleDateRange?.lowerBound ?? Date(),
-                    endDate: visibleDateRange?.upperBound ?? Date()
-                )
-            } catch {
-                alertManager.showAlert(message: error.localizedDescription)
-            }
-        }
         .onChange(of: visibleDateRange) { _, newRange in
             if let newRange = newRange, !priceData.isEmpty {
                 Task {
@@ -188,13 +178,6 @@ struct PriceChartView: View {
                         .foregroundStyle(.blue.opacity(0.6))
 
                     case .trade(let trade):
-                        LineMark(
-                            x: .value("Index", index),
-                            y: .value("Price", calculateTradePrice(trade))
-                        )
-                        .foregroundStyle(.blue)
-                        .interpolationMethod(.catmullRom)
-                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
 
                         PointMark(
                             x: .value("Index", index),
@@ -273,7 +256,7 @@ extension PriceChartView {
 
         // get trades indexes by price data
         let tradesIndexes = trades.map { trade in
-            findClosestPriceDataIndex(to: trade.confirmTime)
+            findClosestPriceDataIndex(prices: data, to: trade.confirmTime)
         }
         // Create a new array to hold the merged result
         var mergedData: [PriceOrTrade] = []
@@ -325,6 +308,7 @@ extension PriceChartView {
             Task {
                 do {
                     try await fetchPriceData(startDate: startDate, endDate: endDate)
+                    resetZoom()
 
                 } catch {
                     alertManager.showAlert(message: error.localizedDescription)
@@ -379,6 +363,14 @@ extension PriceChartView {
             let time1 = priceData[index1].price?.timeSecond
             let time2 = priceData[index2].price?.timeSecond
             guard let time1 = time1, let time2 = time2 else { return false }
+            return abs(time1.timeIntervalSince(date)) < abs(time2.timeIntervalSince(date))
+        })
+    }
+
+    func findClosestPriceDataIndex(prices: [PriceData], to date: Date) -> Int? {
+        return prices.indices.min(by: { index1, index2 in
+            let time1 = prices[index1].timeSecond
+            let time2 = prices[index2].timeSecond
             return abs(time1.timeIntervalSince(date)) < abs(time2.timeIntervalSince(date))
         })
     }

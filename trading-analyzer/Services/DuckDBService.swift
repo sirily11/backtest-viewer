@@ -63,8 +63,25 @@ class DuckDBService {
         }
 
         let iSO8601DateFormatter = ISO8601DateFormatter()
-        let startString = iSO8601DateFormatter.string(from: start)
-        let endString = iSO8601DateFormatter.string(from: end)
+
+        // Calculate the duration between start and end
+        let durationSeconds = end.timeIntervalSince(start)
+        let minDurationSeconds: TimeInterval = 10 * 60 // 10 minutes in seconds
+
+        // If the duration is less than 10 minutes, expand it equally on both sides
+        var adjustedStart = start
+        var adjustedEnd = end
+
+        if durationSeconds < minDurationSeconds {
+            let additionalTimeNeeded = minDurationSeconds - durationSeconds
+            let additionalTimePerSide = additionalTimeNeeded / 2
+
+            adjustedStart = start.addingTimeInterval(-additionalTimePerSide)
+            adjustedEnd = end.addingTimeInterval(additionalTimePerSide)
+        }
+
+        let startString = iSO8601DateFormatter.string(from: adjustedStart)
+        let endString = iSO8601DateFormatter.string(from: adjustedEnd)
         var query = ""
 
         if interval.needsCustomGrouping {
