@@ -7,8 +7,7 @@ struct PriceChartView: View {
 
     // Add state for visible range
     @State private var visibleDateRange: ClosedRange<Date>?
-    @State private var priceData = [PriceData]()
-    @State private var selectedInterval: PriceDataInterval = .oneMinute
+    @State private var priceData = [PriceOrTrade]()
     @Environment(\.openWindow) var openWindow
     @Environment(DuckDBService.self) var duckDBService
     @Environment(AlertManager.self) var alertManager
@@ -31,61 +30,10 @@ struct PriceChartView: View {
         return min(lowerIndex, upperIndex)...max(lowerIndex, upperIndex)
     }
 
-    private func isDateInRange(_ date: Date) -> Bool {
-        guard let range = visibleRange, !priceData.isEmpty else { return true }
-        // Find the nearest index to this date
-        if let index = findClosestPriceDataIndex(to: date),
-           range.contains(index)
-        {
-            return true
-        }
-        return false
-    }
-
-    private var selectedPrice: PriceData? {
-        guard let index = selectedIndex,
-              index >= 0 && index < priceData.count
-        else {
-            return nil
-        }
-        return priceData[index]
-    }
-
-    private var selectedTrade: PositionTradeData? {
-        guard let selectedPrice = selectedPrice else { return nil }
-        return findClosestTrade(to: selectedPrice.timeSecond)
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Price Chart")
                 .font(.headline)
-
-            // Interval selector
-            HStack {
-                Text("Interval:")
-                    .font(.caption)
-                Picker("", selection: $selectedInterval) {
-                    ForEach(PriceDataInterval.allCases, id: \.self) { interval in
-                        Text(interval.displayName).tag(interval)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .onChange(of: selectedInterval) { _, _ in
-                    if let dateRange = visibleDateRange {
-                        Task {
-                            do {
-                                try await fetchPriceData(
-                                    startDate: dateRange.lowerBound,
-                                    endDate: dateRange.upperBound
-                                )
-                            } catch {
-                                alertManager.showAlert(message: error.localizedDescription)
-                            }
-                        }
-                    }
-                }
-            }
 
             // Add zoom controls
             HStack {
@@ -222,50 +170,42 @@ struct PriceChartView: View {
         ZStack(alignment: .topLeading) {
             Chart {
                 // Price area chart with line
-                ForEach(Array(priceData.enumerated()), id: \.element.id) { index, price in
-                    LineMark(
-                        x: .value("Index", index),
-                        y: .value("Price", price.avgPriceInSol)
-                    )
-                    .foregroundStyle(.blue)
-                    .interpolationMethod(.catmullRom)
-                    .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+                ForEach(Array(priceData.enumerated()), id: \.offset) { index, element in
+                    switch element {
+                    case .price(let price):
+                        LineMark(
+                            x: .value("Index", index),
+                            y: .value("Price", price.avgPriceInSol)
+                        )
+                        .foregroundStyle(.blue)
+                        .interpolationMethod(.catmullRom)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
 
-                    AreaMark(
-                        x: .value("Index", index),
-                        y: .value("Price", price.avgPriceInSol)
-                    )
-                    .foregroundStyle(.blue.opacity(0.6))
-                }
+                        AreaMark(
+                            x: .value("Index", index),
+                            y: .value("Price", price.avgPriceInSol)
+                        )
+                        .foregroundStyle(.blue.opacity(0.6))
 
-                // Buy trades
-                ForEach(trades.filter { $0.isBuy }) { trade in
-                    if isDateInRange(trade.confirmTime),
-                       let index = findClosestPriceDataIndex(to: trade.confirmTime)
-                    {
+                    case .trade(let trade):
+                        LineMark(
+                            x: .value("Index", index),
+                            y: .value("Price", calculateTradePrice(trade))
+                        )
+                        .foregroundStyle(.blue)
+                        .interpolationMethod(.catmullRom)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+
                         PointMark(
                             x: .value("Index", index),
                             y: .value("Price", calculateTradePrice(trade))
                         )
-                        .foregroundStyle(.green)
                         .symbolSize(100)
+                        .foregroundStyle(trade.isBuy ? .green : .red)
+                        .interpolationMethod(.catmullRom)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
                     }
                 }
-
-                // Sell trades
-                ForEach(trades.filter { !$0.isBuy }) { trade in
-                    if isDateInRange(trade.confirmTime),
-                       let index = findClosestPriceDataIndex(to: trade.confirmTime)
-                    {
-                        PointMark(
-                            x: .value("Index", index),
-                            y: .value("Price", calculateTradePrice(trade))
-                        )
-                        .foregroundStyle(.red)
-                        .symbolSize(100)
-                    }
-                }
-
                 if let selectedIndex = selectedIndex, selectedIndex < priceData.count {
                     RuleMark(
                         x: .value("Index", selectedIndex)
@@ -279,14 +219,11 @@ struct PriceChartView: View {
                             y: .disabled
                         )
                     ) {
-                        if let selectedTrade,
-                           isVeryCloseToTrade(
-                               date: priceData[selectedIndex].timeSecond, trade: selectedTrade
-                           )
-                        {
-                            TooltipView(trade: selectedTrade)
-                        } else if selectedIndex < priceData.count {
-                            PriceTooltipView(price: priceData[selectedIndex])
+                        switch priceData[selectedIndex] {
+                        case .price(let price):
+                            PriceTooltipView(price: price)
+                        case .trade(let trade):
+                            TooltipView(trade: trade)
                         }
                     }
                 }
@@ -300,7 +237,7 @@ struct PriceChartView: View {
                         if let index = value.as(Int.self),
                            index >= 0 && index < priceData.count
                         {
-                            Text(timeFormatter.string(from: priceData[index].timeSecond))
+                            Text(timeFormatter.string(from: priceData[index].price?.timeSecond ?? Date()))
                         }
                     }
                 }
@@ -331,9 +268,36 @@ extension PriceChartView {
     func fetchPriceData(startDate: Date, endDate: Date) async throws {
         let data = try await duckDBService.fetchPriceData(
             forMarketId: marketId, start: startDate, end: endDate,
-            interval: selectedInterval
+            interval: .oneSecond
         )
-        priceData = data
+
+        // get trades indexes by price data
+        let tradesIndexes = trades.map { trade in
+            findClosestPriceDataIndex(to: trade.confirmTime)
+        }
+        // Create a new array to hold the merged result
+        var mergedData: [PriceOrTrade] = []
+        var currentTradeIndex = 0
+
+        // Iterate through the original price data
+        for (index, price) in data.enumerated() {
+            // Check if there's a trade at this index
+            if tradesIndexes.contains(index) {
+                // Find all trades that correspond to this index
+                while currentTradeIndex < tradesIndexes.count, tradesIndexes[currentTradeIndex] == index {
+                    // Create a TradeWithPrice object combining the trade and price
+                    let trade = trades[currentTradeIndex]
+
+                    mergedData.append(.trade(trade: trade))
+                    currentTradeIndex += 1
+                }
+            }
+
+            // Add the original price data
+            mergedData.append(.price(price: price))
+        }
+
+        priceData = mergedData
     }
 }
 
@@ -371,9 +335,11 @@ extension PriceChartView {
 
     func resetZoom() {
         if !priceData.isEmpty {
-            let firstDate = priceData.first!.timeSecond
-            let lastDate = priceData.last!.timeSecond
-            visibleDateRange = firstDate...lastDate
+            if let firstDate = priceData.first(where: { $0.price?.timeSecond != nil })?.price?.timeSecond,
+               let lastDate = priceData.last(where: { $0.price?.timeSecond != nil })?.price?.timeSecond
+            {
+                visibleDateRange = firstDate...lastDate
+            }
 
         } else {
             visibleDateRange = nil
@@ -384,7 +350,7 @@ extension PriceChartView {
      Update the visibleDateRange base on the current scale
      */
     func zoomIn() {
-        guard let visibleDateRange = visibleDateRange else { return }
+        guard let visibleDateRange = visibleDateRange, scale >= 1 else { return }
         scale *= 0.8
         self.visibleDateRange = visibleDateRange.scale(to: 0.8)
     }
@@ -393,7 +359,7 @@ extension PriceChartView {
      Update the visibleDateRange base on the current scale
      */
     func zoomOut() {
-        guard let visibleDateRange = visibleDateRange else { return }
+        guard let visibleDateRange = visibleDateRange, scale < 60 else { return }
         scale *= 1.2
         self.visibleDateRange = visibleDateRange.scale(to: 1.2)
     }
@@ -410,42 +376,10 @@ extension PriceChartView {
         guard !priceData.isEmpty else { return nil }
 
         return priceData.indices.min(by: { index1, index2 in
-            let time1 = priceData[index1].timeSecond
-            let time2 = priceData[index2].timeSecond
+            let time1 = priceData[index1].price?.timeSecond
+            let time2 = priceData[index2].price?.timeSecond
+            guard let time1 = time1, let time2 = time2 else { return false }
             return abs(time1.timeIntervalSince(date)) < abs(time2.timeIntervalSince(date))
         })
-    }
-}
-
-// MARK: - Chart Interaction Extensions
-
-extension PriceChartView {
-    // Enhanced version to detect if we're hovering over a trade point
-    func findClosestTrade(
-        to date: Date
-    ) -> PositionTradeData? {
-        guard !trades.isEmpty else { return nil }
-
-        // Find the closest trade
-        let closestTrade = trades.min(by: {
-            abs($0.confirmTime.timeIntervalSince(date))
-                < abs($1.confirmTime.timeIntervalSince(date))
-        })
-
-        // Check if the closest trade is within a reasonable time threshold
-        // If the time difference is more than 5 seconds, return nil
-        if let trade = closestTrade,
-           abs(trade.confirmTime.timeIntervalSince(date)) <= 5
-        {
-            return trade
-        }
-
-        return nil
-    }
-
-    // Helper function to determine if a date is very close to a trade
-    func isVeryCloseToTrade(date: Date, trade: PositionTradeData) -> Bool {
-        // Consider "very close" to be within 1 second
-        return abs(date.timeIntervalSince(trade.confirmTime)) < 1.0
     }
 }

@@ -6,6 +6,29 @@
 //
 import Foundation
 
+enum PriceOrTrade {
+    case price(price: PriceData)
+    case trade(trade: PositionTradeData)
+
+    var price: PriceData? {
+        switch self {
+        case .price(let price):
+            return price
+        default:
+            return nil
+        }
+    }
+
+    var trade: PositionTradeData? {
+        switch self {
+        case .trade(let trade):
+            return trade
+        default:
+            return nil
+        }
+    }
+}
+
 struct PriceData: Identifiable {
     let id = UUID()
     let timeSecond: Date
@@ -39,11 +62,11 @@ enum PriceDataInterval: String, CaseIterable {
         let timeInterval = endDate.timeIntervalSince(startDate)
 
         // Choose the appropriate interval based on the time span
-        if timeInterval <= 300 {  // 5 minutes or less
+        if timeInterval <= 300 { // 5 minutes or less
             return .oneSecond
-        } else if timeInterval <= 3600 {  // 1 hour or less
+        } else if timeInterval <= 3600 { // 1 hour or less
             return .fifteenSeconds
-        } else if timeInterval <= 86400 {  // 1 day or less
+        } else if timeInterval <= 86400 { // 1 day or less
             return .oneMinute
         } else {
             return .fiveMinutes
