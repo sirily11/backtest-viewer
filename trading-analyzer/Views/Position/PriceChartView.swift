@@ -13,6 +13,8 @@ struct PriceChartView: View {
     @State private var lastDragValue: CGFloat = 0.0
     @State private var priceData = [PriceData]()
     @Environment(\.openWindow) var openWindow
+    @Environment(DuckDBService.self) var duckDBService
+    @Environment(AlertManager.self) var alertManager
 
     @State var rawSelectedDate: Date?
 
@@ -132,7 +134,7 @@ struct PriceChartView: View {
                     }
                 }
                 .padding()
-                .background(Color.secondary.opacity(0.8))
+                .background(Color.secondary.opacity(0.4))
                 .cornerRadius(8)
             } else {
                 chartView
@@ -141,6 +143,24 @@ struct PriceChartView: View {
         .padding()
         .onAppear {
             setInitialDateRange()
+        }
+        .task {
+            do {
+                try await fetchPriceData(startDate: dataRange?.lowerBound ?? Date(), endDate: dataRange?.upperBound ?? Date())
+            } catch {
+                alertManager.showAlert(message: error.localizedDescription)
+            }
+        }
+        .onChange(of: dataRange) { _, newRange in
+            if let newRange = newRange {
+                Task {
+                    do {
+                        try await fetchPriceData(startDate: newRange.lowerBound, endDate: newRange.upperBound)
+                    } catch {
+                        alertManager.showAlert(message: error.localizedDescription)
+                    }
+                }
+            }
         }
     }
 
@@ -229,6 +249,15 @@ struct PriceChartView: View {
             .chartXScale(domain: dataRange ?? Date()...Date()) // Default to current date
             .frame(height: 300)
         }
+    }
+}
+
+// MARK: Fetch data on the fly
+
+extension PriceChartView {
+    func fetchPriceData(startDate: Date, endDate: Date) async throws {
+        let data = try await duckDBService.fetchPriceData(forMarketId: marketId, start: startDate, end: endDate, interval: .initFromDateRange(from: startDate, to: endDate))
+        priceData = data
     }
 }
 
