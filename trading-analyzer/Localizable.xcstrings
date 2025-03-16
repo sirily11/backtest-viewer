@@ -225,6 +225,9 @@
         }
       }
     },
+    "Index" : {
+
+    },
     "Individual results" : {
       "localizations" : {
         "zh-Hans" : {
@@ -633,6 +636,7 @@
       }
     },
     "Time" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

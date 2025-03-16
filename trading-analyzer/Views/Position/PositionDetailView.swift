@@ -3,11 +3,10 @@ import SwiftUI
 struct PositionLoadingView: View {
     let position: PositionData?
     let trades: [PositionTradeData]
-    let priceData: [PriceData]
 
     var body: some View {
         if let position = position {
-            PositionDetailView(position: position, trades: trades, priceData: priceData)
+            PositionDetailView(position: position, trades: trades)
         } else {
             ProgressView()
         }
@@ -17,7 +16,6 @@ struct PositionLoadingView: View {
 struct PositionDetailView: View {
     let position: PositionData
     let trades: [PositionTradeData]
-    let priceData: [PriceData]
     @Environment(\.dismiss) var dismiss
 
     @State private var selectedTab = 0
@@ -274,7 +272,7 @@ struct PositionDetailView: View {
     }
 
     private var chartView: some View {
-        PriceChartView(priceData: priceData, trades: trades)
+        PriceChartView(marketId: position.marketId, trades: trades)
     }
 
     private func statRow(title: String, value: String, valueColor: Color? = nil) -> some View {

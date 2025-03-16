@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 import TabularData
 
+typealias FoundationDate = Foundation.Date
+
 enum DuckDBError: LocalizedError {
     case connectionError
     case missingDataset
@@ -49,7 +51,7 @@ class DuckDBService {
     }
 
     @MainActor
-    func fetchPriceData(forMarketId marketId: String) async throws
+    func fetchPriceData(forMarketId marketId: String, start: FoundationDate, end: FoundationDate, interval: PriceDataInterval) async throws
         -> [PriceData]
     {
         guard let connection = connection else {
@@ -60,19 +62,43 @@ class DuckDBService {
             throw DuckDBError.missingDataset
         }
 
-        let query = """
-        SELECT
-            CAST(date_trunc('second', block_time) AS VARCHAR) AS time_second,
-            AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
-            COUNT(*) AS transaction_count,
-            MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
-            MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
-        FROM read_parquet('\(dataset.path)')
-        WHERE base_address = '\(marketId)'
+        let iSO8601DateFormatter = ISO8601DateFormatter()
+        let startString = iSO8601DateFormatter.string(from: start)
+        let endString = iSO8601DateFormatter.string(from: end)
+        var query = ""
 
-        GROUP BY date_trunc('second', block_time)
-        ORDER BY CAST(date_trunc('second', block_time) AS VARCHAR)
-        """
+        if interval.needsCustomGrouping {
+            // For 15-second and 5-minute intervals, we need custom grouping
+            query = """
+            SELECT
+                CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) || 
+                    CAST((EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier) AS VARCHAR) AS time_interval,
+                AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
+                COUNT(*) AS transaction_count,
+                MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
+                MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
+            FROM read_parquet('\(dataset.path)')
+            WHERE base_address = '\(marketId)'
+            AND block_time BETWEEN '\(startString)' AND '\(endString)'
+            GROUP BY date_trunc('\(interval.sql)', block_time), (EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier)
+            ORDER BY time_interval
+            """
+        } else {
+            // For 1-second and 1-minute intervals, we can use simple date_trunc
+            query = """
+            SELECT
+                CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) AS time_interval,
+                AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
+                COUNT(*) AS transaction_count,
+                MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
+                MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
+            FROM read_parquet('\(dataset.path)')
+            WHERE base_address = '\(marketId)'
+            AND block_time BETWEEN '\(startString)' AND '\(endString)'
+            GROUP BY date_trunc('\(interval.sql)', block_time)
+            ORDER BY time_interval
+            """
+        }
         let result = try connection.query(query)
         let secondColumn = result[0].cast(to: String.self)
         let avgPriceColumn = result[1].cast(to: Double.self)
@@ -115,7 +141,6 @@ class DuckDBService {
                 maxPriceInSol: row[4, Double.self] ?? 0
             )
         }
-        print("priceData: \(priceData[0])")
         return priceData
     }
 }
