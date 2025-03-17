@@ -10,9 +10,10 @@ import SwiftUI
 struct ContentView: View {
     @State private var isOpenFolder = false
     @State private var folders = [URL]()
-    @AppStorage("working-folder") var workingFolder: String = ""
+    @AppStorage("result-folder") var resultFolder: String = ""
     @State private var selectedFolder: URL? = nil
     @State private var hasLoaded = false
+    @AppStorage("has-initialized") var hasInitialized = false
 
     @Environment(AlertManager.self) var alertManager
 
@@ -55,15 +56,15 @@ struct ContentView: View {
                }, message: {
                    Text(alertManager.alertMessage)
                })
-        .onChange(of: workingFolder) { _, _ in
+        .onChange(of: resultFolder) { _, _ in
             print("Reload folders")
-            if let url = URL(string: workingFolder) {
+            if let url = URL(string: resultFolder) {
                 readFoldersInDirectory(directory: url)
             }
         }
         .task {
-            print("Working folder: \(workingFolder)")
-            if let url = URL(string: workingFolder) {
+            print("Working folder: \(resultFolder)")
+            if let url = URL(string: resultFolder) {
                 readFoldersInDirectory(directory: url)
             }
             withAnimation {
@@ -78,15 +79,7 @@ struct ContentView: View {
             Text("You are not open any back test results folder yet.")
 
             Button("Pick a folder") {
-                isOpenFolder.toggle()
-            }
-            .fileImporter(isPresented: $isOpenFolder, allowedContentTypes: [.directory]) { result in
-                switch result {
-                case .success(let dictionary):
-                    self.workingFolder = dictionary.absoluteString
-                case .failure(let error):
-                    print(error)
-                }
+                hasInitialized = false
             }
         }
         .padding()
