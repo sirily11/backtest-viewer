@@ -105,6 +105,9 @@
         }
       }
     },
+    "Continue" : {
+
+    },
     "Cost" : {
       "localizations" : {
         "zh-Hans" : {
@@ -134,9 +137,6 @@
           }
         }
       }
-    },
-    "Current data folder:" : {
-
     },
     "Database" : {
       "extractionState" : "stale",
@@ -170,9 +170,6 @@
           }
         }
       }
-    },
-    "DuckDB Settings" : {
-
     },
     "Error loading data" : {
       "localizations" : {
@@ -213,6 +210,9 @@
           }
         }
       }
+    },
+    "General Settings" : {
+
     },
     "Host" : {
       "extractionState" : "stale",
@@ -318,9 +318,6 @@
         }
       }
     },
-    "No folder selected" : {
-
-    },
     "No position data available" : {
       "localizations" : {
         "zh-Hans" : {
@@ -341,6 +338,9 @@
         }
       }
     },
+    "Not selected" : {
+
+    },
     "OK" : {
       "localizations" : {
         "zh-Hans" : {
@@ -351,7 +351,11 @@
         }
       }
     },
+    "Open folder" : {
+
+    },
     "Open new results folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -595,6 +599,9 @@
         }
       }
     },
+    "Select %@" : {
+
+    },
     "Selected" : {
       "localizations" : {
         "zh-Hans" : {
@@ -747,6 +754,9 @@
         }
       }
     },
+    "Welcome to Trading Analyzer" : {
+
+    },
     "Winrate" : {
       "localizations" : {
         "zh-Hans" : {
@@ -766,6 +776,9 @@
           }
         }
       }
+    },
+    "You need to configure the following settings before using the app" : {
+
     },
     "Zoom In" : {
       "localizations" : {
