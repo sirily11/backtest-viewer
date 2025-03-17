@@ -60,6 +60,9 @@
         }
       }
     },
+    "Cancel" : {
+
+    },
     "Category" : {
       "localizations" : {
         "zh-Hans" : {
@@ -212,6 +215,12 @@
       }
     },
     "General Settings" : {
+
+    },
+    "Go Executable Path" : {
+
+    },
+    "Go Path" : {
 
     },
     "Host" : {
@@ -578,6 +587,18 @@
         }
       }
     },
+    "Run" : {
+
+    },
+    "Run back test" : {
+
+    },
+    "Run backtest" : {
+
+    },
+    "Running..." : {
+
+    },
     "Runtime: %@" : {
       "localizations" : {
         "zh-Hans" : {
@@ -632,6 +653,9 @@
         }
       }
     },
+    "Task completed successfully" : {
+
+    },
     "Task ID: %lld" : {
       "localizations" : {
         "zh-Hans" : {
@@ -641,6 +665,9 @@
           }
         }
       }
+    },
+    "Task was canceled" : {
+
     },
     "Time" : {
       "extractionState" : "stale",

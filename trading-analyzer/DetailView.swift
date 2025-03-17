@@ -25,18 +25,20 @@ struct DetailView: View {
     }
 
     var body: some View {
-        TabView {
-            GeneralView(file: generalInfoFile)
-                .tabItem {
-                    Label("General", systemImage: "info.circle")
-                }
+        VStack {
+            TabView {
+                GeneralView(file: generalInfoFile)
+                    .tabItem {
+                        Label("General", systemImage: "info.circle")
+                    }
 
-            PositionView(datasetName: folder.lastPathComponent, positionFile: positionFile, positionTradingFile: positionTradingFile)
-                .tabItem {
-                    Label("Position", systemImage: "chart.bar.xaxis")
-                }
+                PositionView(datasetName: folder.lastPathComponent, positionFile: positionFile, positionTradingFile: positionTradingFile)
+                    .tabItem {
+                        Label("Position", systemImage: "chart.bar.xaxis")
+                    }
+            }
+            .frame(minWidth: 400, minHeight: 300)
+            .padding()
         }
-        .frame(minWidth: 400, minHeight: 300)
-        .padding()
     }
 }

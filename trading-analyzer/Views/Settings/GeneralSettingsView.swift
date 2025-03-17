@@ -11,6 +11,8 @@ import UniformTypeIdentifiers
 private enum FilePickerType: CaseIterable {
     case dataFolder
     case resultFolder
+    case pluginFolder
+    case taskFolder
     case executable
     case makeFile
 
@@ -22,6 +24,10 @@ private enum FilePickerType: CaseIterable {
             return "Result Folder"
         case .executable:
             return "Executable"
+        case .pluginFolder:
+            return "Plugin Folder"
+        case .taskFolder:
+            return "Task Folder"
         case .makeFile:
             return "Makefile"
         }
@@ -29,7 +35,7 @@ private enum FilePickerType: CaseIterable {
 
     var allowedContentTypes: [UTType] {
         switch self {
-        case .dataFolder, .resultFolder:
+        case .dataFolder, .resultFolder, .pluginFolder, .taskFolder:
             return [.directory]
         case .executable:
             return [.executable]
@@ -48,7 +54,9 @@ private enum FilePickerType: CaseIterable {
         case .dataFolder:
             // check if any parquet file in the folder
             let fileManager = FileManager.default
-            let contents = try? fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: nil)
+            let contents = try? fileManager.contentsOfDirectory(
+                at: url, includingPropertiesForKeys: nil
+            )
             return contents?.contains { $0.pathExtension == "parquet" } ?? false
         default:
             return true
@@ -63,8 +71,12 @@ struct GeneralSettingsView: View {
     @AppStorage("result-folder") private var resultFolder = ""
     @AppStorage("executable") private var executable = ""
     @AppStorage("make-file") private var makeFile = ""
+    @AppStorage("plugin-folder") private var pluginFolder = ""
+    @AppStorage("task-folder") private var taskFolder = ""
+    @AppStorage("go-path") private var goPath = ""
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(CommandService.self) var commandService
     @State var alertManager = AlertManager()
 
     @State private var showFilePicker = false
@@ -83,34 +95,62 @@ struct GeneralSettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Section {
+                Text("Go Executable Path")
+                TextField("Go Path", text: $goPath)
+                Divider()
                 ForEach(FilePickerType.allCases, id: \.self) { picker in
-                    GeneralSettingsRow(value: {
-                        switch picker {
-                        case .dataFolder:
-                            return dataFolder
-                        case .resultFolder:
-                            return resultFolder
-                        case .executable:
-                            return executable
-                        case .makeFile:
-                            return makeFile
-                        }
-                    }, targetFilePickerType: picker, filePickerType: $filePickerType, showFilePicker: $showFilePicker)
+                    GeneralSettingsRow(
+                        value: {
+                            switch picker {
+                            case .dataFolder:
+                                return dataFolder
+                            case .resultFolder:
+                                return resultFolder
+                            case .executable:
+                                return executable
+                            case .makeFile:
+                                return makeFile
+                            case .pluginFolder:
+                                return pluginFolder
+                            case .taskFolder:
+                                return taskFolder
+                            }
+                        }, targetFilePickerType: picker, filePickerType: $filePickerType,
+                        showFilePicker: $showFilePicker
+                    )
 
-                    Divider()
+                    if picker != FilePickerType.allCases.last {
+                        Divider()
+                    }
                 }
             }
             Spacer()
         }
-        .alert(alertManager.alertTitle,
-               isPresented: alertManager.isAlertPresentedBinding,
-               actions: {
-                   Button("OK", role: .cancel) {
-                       alertManager.hideAlert()
-                   }
-               }, message: {
-                   Text(alertManager.alertMessage)
-               })
+        .task {
+            if !goPath.isEmpty {
+                return
+            }
+            // get go path from system
+            do {
+                let goPath = try commandService.getGoPath()
+                self.goPath = goPath
+            } catch {
+                print(error)
+                alertManager.showAlert(message: error.localizedDescription)
+            }
+        }
+        .alert(
+            alertManager.alertTitle,
+            isPresented: alertManager.isAlertPresentedBinding,
+            actions: {
+                Button("OK", role: .cancel) {
+                    alertManager.hideAlert()
+                }
+            },
+            message: {
+                Text(alertManager.alertMessage)
+            }
+        )
         .listStyle(.plain)
         .insetGroupedStyle(header: "Path")
         .onAppear {
@@ -118,12 +158,16 @@ struct GeneralSettingsView: View {
                 onAllSet?()
             }
         }
-        .fileImporter(isPresented: $showFilePicker, allowedContentTypes: filePickerType?.allowedContentTypes ?? []) { result in
+        .fileImporter(
+            isPresented: $showFilePicker,
+            allowedContentTypes: filePickerType?.allowedContentTypes ?? []
+        ) { result in
             switch result {
             case .success(let dictionary):
                 // check if the folder is correct
                 if let filePickerType = filePickerType, !filePickerType.isCorrectFolder(dictionary) {
-                    alertManager.showAlert(message: "The selected folder is not correct for \(filePickerType.title)")
+                    alertManager.showAlert(
+                        message: "The selected folder is not correct for \(filePickerType.title)")
                     return
                 }
                 switch filePickerType {
@@ -135,6 +179,10 @@ struct GeneralSettingsView: View {
                     executable = dictionary.absoluteString
                 case .makeFile:
                     makeFile = dictionary.absoluteString
+                case .pluginFolder:
+                    pluginFolder = dictionary.absoluteString
+                case .taskFolder:
+                    taskFolder = dictionary.absoluteString
                 case .none:
                     break
                 }
@@ -148,7 +196,9 @@ struct GeneralSettingsView: View {
     }
 
     func checkAllSet() -> Bool {
-        if dataFolder.isEmpty || resultFolder.isEmpty || executable.isEmpty || makeFile.isEmpty {
+        if dataFolder.isEmpty || resultFolder.isEmpty || executable.isEmpty || makeFile.isEmpty
+            || pluginFolder.isEmpty || taskFolder.isEmpty || goPath.isEmpty
+        {
             return false
         }
 
@@ -187,7 +237,9 @@ private struct GeneralSettingsRow: View {
 
 extension View {
     func insetGroupedStyle(header: String) -> some View {
-        return GroupBox(label: Text(header.uppercased()).font(.headline).padding(.top).padding(.bottom, 6)) {
+        return GroupBox(
+            label: Text(header.uppercased()).font(.headline).padding(.top).padding(.bottom, 6)
+        ) {
             VStack {
                 self.padding(.vertical, 3)
             }.padding(.horizontal).padding(.vertical)

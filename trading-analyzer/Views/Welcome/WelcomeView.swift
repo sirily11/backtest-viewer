@@ -11,6 +11,7 @@ struct WelcomeView: View {
     @AppStorage("has-initialized") var hasInitialized = false
 
     @State private var allSet = false
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
         VStack(alignment: .center) {
@@ -33,9 +34,8 @@ struct WelcomeView: View {
 
             Button("Continue") {
                 hasInitialized = true
+                dismiss()
             }
-            .buttonBorderShape(.roundedRectangle)
-            .buttonStyle(.borderedProminent)
             .frame(width: 200)
             .disabled(!allSet)
         }
