@@ -10,11 +10,13 @@ import SwiftUI
 struct ContentView: View {
     @State private var isOpenFolder = false
     @State private var folders = [URL]()
+    @State private var showRunPopup = false
+
     @AppStorage("result-folder") var resultFolder: String = ""
     @State private var selectedFolder: URL? = nil
     @State private var hasLoaded = false
     @AppStorage("has-initialized") var hasInitialized = false
-
+    @Environment(CommandService.self) var commandService
     @Environment(AlertManager.self) var alertManager
 
     var body: some View {
@@ -54,12 +56,22 @@ struct ContentView: View {
                        alertManager.hideAlert()
                    }
                }, message: {
-                   Text(alertManager.alertMessage)
+                   Text(alertManager.alertMessage.count > 1000 ?
+                       alertManager.alertMessage.prefix(997) + "..." :
+                       alertManager.alertMessage)
                })
         .onChange(of: resultFolder) { _, _ in
             print("Reload folders")
             if let url = URL(string: resultFolder) {
                 readFoldersInDirectory(directory: url)
+            }
+        }
+        .onChange(of: commandService.runBacktestStatus) { oldValue, newValue in
+            if oldValue.isRunning && !newValue.isRunning {
+                print("Strategy finished, reload folders")
+                if let url = URL(string: resultFolder) {
+                    readFoldersInDirectory(directory: url)
+                }
             }
         }
         .task {
@@ -69,6 +81,24 @@ struct ContentView: View {
             }
             withAnimation {
                 hasLoaded = true
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showRunPopup = true
+                } label: {
+                    if commandService.speedupStatus.isRunning || commandService.runBacktestStatus.isRunning {
+                        ProgressView()
+                            .frame(width: 20, height: 20)
+                    } else {
+                        Label("Run backtest", systemImage: "play.fill")
+                    }
+                }
+                .popover(isPresented: $showRunPopup) {
+                    BacktestView()
+                }
+                .help("Run back test")
             }
         }
     }

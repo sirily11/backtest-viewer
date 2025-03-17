@@ -5,6 +5,8 @@ import UniformTypeIdentifiers
 struct TradingAnalyzerApp: App {
     @State private var duckDBService = DuckDBService()
     @State private var alertManager = AlertManager()
+    @State private var commandService = CommandService()
+
     @Environment(\.openWindow) var open
     @AppStorage("has-initialized") var hasInitialized = false
     @State var showWelcomeSheet = false
@@ -14,6 +16,7 @@ struct TradingAnalyzerApp: App {
             ContentView()
                 .environment(duckDBService)
                 .environment(alertManager)
+                .environment(commandService)
                 .task {
                     // Connect to PostgreSQL if we have a connection string
                     do {
@@ -28,12 +31,14 @@ struct TradingAnalyzerApp: App {
                 .sheet(isPresented: $showWelcomeSheet) {
                     WelcomeView()
                         .environment(alertManager)
+                        .environment(commandService)
                 }
         }
 
         Window("Settings", id: "settings") {
             SettingsView()
                 .environment(alertManager)
+                .environment(commandService)
         }
         .windowResizability(.contentSize)
         .commands {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF4E94A62D8822E300DF3FEF /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = DF4E94A52D8822E300DF3FEF /* Shimmer */; };
 		DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */; };
 		DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE202D81B9C9005F0C90 /* PostgresNIO */; };
 		DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE902D826DEB005F0C90 /* DuckDB */; };
@@ -58,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF4E94A62D8822E300DF3FEF /* Shimmer in Frameworks */,
 				DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */,
 				DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */,
 				DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */,
@@ -124,6 +126,7 @@
 				DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */,
 				DFD9FE202D81B9C9005F0C90 /* PostgresNIO */,
 				DFD9FE902D826DEB005F0C90 /* DuckDB */,
+				DF4E94A52D8822E300DF3FEF /* Shimmer */,
 			);
 			productName = "trading-analyzer";
 			productReference = DF1CBC122D81806F00D8A38F /* trading-analyzer.app */;
@@ -212,6 +215,7 @@
 				DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
 				DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */,
 				DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */,
+				DF4E94A42D8822E300DF3FEF /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DF1CBC132D81806F00D8A38F /* Products */;
@@ -569,6 +573,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		DF4E94A42D8822E300DF3FEF /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
 		DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swiftcsv/SwiftCSV";
@@ -596,6 +608,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		DF4E94A52D8822E300DF3FEF /* Shimmer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF4E94A42D8822E300DF3FEF /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
+			productName = Shimmer;
+		};
 		DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */;

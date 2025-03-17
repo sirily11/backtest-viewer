@@ -214,6 +214,12 @@
     "General Settings" : {
 
     },
+    "Go Executable Path" : {
+
+    },
+    "Go Path" : {
+
+    },
     "Host" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -578,6 +584,21 @@
         }
       }
     },
+    "Run" : {
+
+    },
+    "Run back test" : {
+
+    },
+    "Run backtest" : {
+
+    },
+    "Running" : {
+
+    },
+    "Running..." : {
+
+    },
     "Runtime: %@" : {
       "localizations" : {
         "zh-Hans" : {
@@ -631,6 +652,9 @@
           }
         }
       }
+    },
+    "Task completed successfully" : {
+
     },
     "Task ID: %lld" : {
       "localizations" : {

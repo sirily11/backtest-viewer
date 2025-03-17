@@ -55,7 +55,8 @@ private enum FilePickerType: CaseIterable {
             // check if any parquet file in the folder
             let fileManager = FileManager.default
             let contents = try? fileManager.contentsOfDirectory(
-                at: url, includingPropertiesForKeys: nil)
+                at: url, includingPropertiesForKeys: nil
+            )
             return contents?.contains { $0.pathExtension == "parquet" } ?? false
         default:
             return true
@@ -72,8 +73,10 @@ struct GeneralSettingsView: View {
     @AppStorage("make-file") private var makeFile = ""
     @AppStorage("plugin-folder") private var pluginFolder = ""
     @AppStorage("task-folder") private var taskFolder = ""
+    @AppStorage("go-path") private var goPath = ""
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(CommandService.self) var commandService
     @State var alertManager = AlertManager()
 
     @State private var showFilePicker = false
@@ -92,6 +95,9 @@ struct GeneralSettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Section {
+                Text("Go Executable Path")
+                TextField("Go Path", text: $goPath)
+                Divider()
                 ForEach(FilePickerType.allCases, id: \.self) { picker in
                     GeneralSettingsRow(
                         value: {
@@ -110,7 +116,8 @@ struct GeneralSettingsView: View {
                                 return taskFolder
                             }
                         }, targetFilePickerType: picker, filePickerType: $filePickerType,
-                        showFilePicker: $showFilePicker)
+                        showFilePicker: $showFilePicker
+                    )
 
                     if picker != FilePickerType.allCases.last {
                         Divider()
@@ -118,6 +125,19 @@ struct GeneralSettingsView: View {
                 }
             }
             Spacer()
+        }
+        .task {
+            if !goPath.isEmpty {
+                return
+            }
+            // get go path from system
+            do {
+                let goPath = try commandService.getGoPath()
+                self.goPath = goPath
+            } catch {
+                print(error)
+                alertManager.showAlert(message: error.localizedDescription)
+            }
         }
         .alert(
             alertManager.alertTitle,
@@ -145,8 +165,7 @@ struct GeneralSettingsView: View {
             switch result {
             case .success(let dictionary):
                 // check if the folder is correct
-                if let filePickerType = filePickerType, !filePickerType.isCorrectFolder(dictionary)
-                {
+                if let filePickerType = filePickerType, !filePickerType.isCorrectFolder(dictionary) {
                     alertManager.showAlert(
                         message: "The selected folder is not correct for \(filePickerType.title)")
                     return
@@ -178,7 +197,7 @@ struct GeneralSettingsView: View {
 
     func checkAllSet() -> Bool {
         if dataFolder.isEmpty || resultFolder.isEmpty || executable.isEmpty || makeFile.isEmpty
-            || pluginFolder.isEmpty || taskFolder.isEmpty
+            || pluginFolder.isEmpty || taskFolder.isEmpty || goPath.isEmpty
         {
             return false
         }
