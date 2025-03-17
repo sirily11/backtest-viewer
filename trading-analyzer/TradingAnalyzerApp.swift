@@ -7,21 +7,7 @@ struct TradingAnalyzerApp: App {
     @State private var alertManager = AlertManager()
     @Environment(\.openWindow) var open
     @AppStorage("has-initialized") var hasInitialized = false
-
-    var showWelcomeSheet: Binding<Bool> {
-        get {
-            Binding<Bool>(
-                get: { !hasInitialized },
-                set: { isShowing in
-                    hasInitialized = !isShowing
-                }
-            )
-        }
-
-        set {
-            hasInitialized = !newValue.wrappedValue
-        }
-    }
+    @State var showWelcomeSheet = false
 
     var body: some Scene {
         WindowGroup {
@@ -32,11 +18,14 @@ struct TradingAnalyzerApp: App {
                     // Connect to PostgreSQL if we have a connection string
                     do {
                         try duckDBService.initDatabase()
+                        if !hasInitialized {
+                            showWelcomeSheet = true
+                        }
                     } catch {
                         alertManager.showAlert(message: error.localizedDescription)
                     }
                 }
-                .sheet(isPresented: showWelcomeSheet) {
+                .sheet(isPresented: $showWelcomeSheet) {
                     WelcomeView()
                         .environment(alertManager)
                 }
@@ -57,7 +46,7 @@ struct TradingAnalyzerApp: App {
 
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
                 Button("Open folder") {
-                    hasInitialized = false
+                    showWelcomeSheet = true
                 }
             }
         }
