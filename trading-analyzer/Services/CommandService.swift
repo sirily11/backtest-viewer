@@ -26,6 +26,7 @@ enum CommandStatus: Equatable {
     case running(output: String?)
     case success
     case failure(error: Error)
+    case canceled
 
     var isRunning: Bool {
         switch self {
@@ -46,6 +47,8 @@ enum CommandStatus: Equatable {
             return true
         case (.failure, .failure):
             return true
+        case (.canceled, .canceled):
+            return true
         default:
             return false
         }
@@ -57,6 +60,11 @@ class CommandService {
     private(set) var speedupStatus: CommandStatus = .notRunning
     private(set) var runBacktestStatus: CommandStatus = .notRunning
 
+    private var currentProcesses: [UUID: Process] = [:]
+
+    private var speedupTaskId: UUID?
+    private var backtestTaskId: UUID?
+
     /**
      Run a shell command as an async sequence that yields output as it becomes available.
 
@@ -64,13 +72,15 @@ class CommandService {
         - command: The shell command to execute
         - workingDirectory: The directory to run the command in (optional)
         - environment: Environment variables to set for the command (optional)
+        - taskId: A unique identifier for this task (optional)
 
      - Returns: An AsyncThrowingStream that yields command output and throws CommandError on failure
      */
     func runCommand(
         command: String,
         workingDirectory: URL? = nil,
-        environment: [String: String]? = nil
+        environment: [String: String]? = nil,
+        taskId: UUID = UUID()
     ) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             // Create a process
@@ -79,6 +89,17 @@ class CommandService {
             process.arguments = ["-l", "-c", command]
 
             print("Executing command: \(command)")
+
+            // Store the process for potential cancellation
+            self.currentProcesses[taskId] = process
+
+            // Track if the process was canceled
+            let cancelToken = CancelToken()
+            process.terminationHandler = { proc in
+                if proc.terminationReason == .uncaughtSignal {
+                    cancelToken.canceled = true
+                }
+            }
 
             // Set working directory if provided
             if let workingDirectory = workingDirectory {
@@ -131,6 +152,17 @@ class CommandService {
                     // Clean up readability handlers
                     handler.readabilityHandler = nil
 
+                    // Remove process from tracking
+                    DispatchQueue.main.async {
+                        self.currentProcesses.removeValue(forKey: taskId)
+                    }
+
+                    // Check if the process was canceled
+                    if cancelToken.canceled {
+                        continuation.finish()
+                        return
+                    }
+
                     // Check the exit status
                     print("Process exited with status: \(process.terminationStatus)")
                     if process.terminationStatus != 0 {
@@ -138,13 +170,13 @@ class CommandService {
                             continuation.finish(
                                 throwing: CommandError.commandFailed(
                                     reason:
-                                    "Command failed with exit code \(process.terminationStatus): \(errorOutput)"
+                                        "Command failed with exit code \(process.terminationStatus): \(errorOutput)"
                                 ))
                         } else {
                             continuation.finish(
                                 throwing: CommandError.commandFailed(
                                     reason:
-                                    "Command failed with exit code \(process.terminationStatus)"
+                                        "Command failed with exit code \(process.terminationStatus)"
                                 ))
                         }
                     } else {
@@ -154,8 +186,53 @@ class CommandService {
             } catch {
                 handler.readabilityHandler = nil
 
+                // Remove process from tracking on error
+                DispatchQueue.main.async {
+                    self.currentProcesses.removeValue(forKey: taskId)
+                }
+
                 continuation.finish(
                     throwing: CommandError.processFailed(reason: error.localizedDescription))
+            }
+        }
+    }
+
+    /**
+     Cancel a running command
+
+     - Parameter taskId: The ID of the task to cancel
+     - Returns: True if a process was found and terminated, false otherwise
+     */
+    func cancelCommand(taskId: UUID) -> Bool {
+        guard let process = currentProcesses[taskId] else {
+            return false
+        }
+
+        process.terminate()
+        currentProcesses.removeValue(forKey: taskId)
+        return true
+    }
+
+    /**
+     Cancel the currently running speedup data generation process
+     */
+    func cancelSpeedupDataGeneration() {
+        if let taskId = speedupTaskId {
+            if cancelCommand(taskId: taskId) {
+                speedupStatus = .canceled
+                speedupTaskId = nil
+            }
+        }
+    }
+
+    /**
+     Cancel the currently running backtest process
+     */
+    func cancelBacktest() {
+        if let taskId = backtestTaskId {
+            if cancelCommand(taskId: taskId) {
+                runBacktestStatus = .canceled
+                backtestTaskId = nil
             }
         }
     }
@@ -168,23 +245,42 @@ class CommandService {
         let cwd = makeFilePath.deletingLastPathComponent()
         let makeCommand = "make -f \(makeFilePath.path) build"
 
+        let taskId = UUID()
+        backtestTaskId = taskId
+
         do {
             for try await output in runCommand(
                 command: makeCommand,
                 workingDirectory: cwd,
-                environment: ["GO": goBinaryPath.path]
+                environment: ["GO": goBinaryPath.path],
+                taskId: taskId
             ) {
+                // Check if the status has been changed to canceled
+                if case .canceled = runBacktestStatus {
+                    break
+                }
                 runBacktestStatus = .running(output: output)
             }
-            runBacktestStatus = .success
+
+            // Only update to success if not already canceled
+            if case .running = runBacktestStatus {
+                runBacktestStatus = .success
+            }
         } catch let error as CommandError {
-            runBacktestStatus = .failure(error: error)
-            throw error
+            // Only update to failure if not already canceled
+            if case .running = runBacktestStatus {
+                runBacktestStatus = .failure(error: error)
+                throw error
+            }
         } catch {
-            let commandError = CommandError.processFailed(reason: error.localizedDescription)
-            runBacktestStatus = .failure(error: commandError)
-            throw commandError
+            // Only update to failure if not already canceled
+            if case .running = runBacktestStatus {
+                let commandError = CommandError.processFailed(reason: error.localizedDescription)
+                runBacktestStatus = .failure(error: commandError)
+                throw commandError
+            }
         }
+        backtestTaskId = nil
     }
 
     /**
@@ -199,6 +295,9 @@ class CommandService {
     ) async throws {
         runBacktestStatus = .running(output: "Running backtest command")
 
+        let taskId = UUID()
+        backtestTaskId = taskId
+
         // empty result folder
         let fileManager = FileManager.default
         do {
@@ -207,34 +306,53 @@ class CommandService {
                 at: resultFilePath, withIntermediateDirectories: true, attributes: nil
             )
         } catch {
-            throw CommandError.commandFailed(
-                reason: "Failed to empty result folder: \(error.localizedDescription)")
+            // Only throw if not already canceled
+            if case .running = runBacktestStatus {
+                throw CommandError.commandFailed(
+                    reason: "Failed to empty result folder: \(error.localizedDescription)")
+            }
+            return
         }
 
         // Construct the command
         let command = """
-        \(executableFilePath.path) trade backtest from-swap-parquet \
-         --save-result-as-csv \
-        --result-dir "\(resultFilePath.path)" \
-        --parquet-file-path-pattern "\(dataFilePath.path)/.*.parquet" \
-        --task-json-file-path-pattern "\(taskFilePath.path)/.*.json" \
-         --speedup-helper-data-file-path \(dataFilePath.appending(component: "speedup-helper-data.json").path) \
-        --trade-strategy-plugin-file-path-pattern "\(strategyFilePath.path)/.*.so"
-        """
+            \(executableFilePath.path) trade backtest from-swap-parquet \
+             --save-result-as-csv \
+            --result-dir "\(resultFilePath.path)" \
+            --parquet-file-path-pattern "\(dataFilePath.path)/.*.parquet" \
+            --task-json-file-path-pattern "\(taskFilePath.path)/.*.json" \
+             --speedup-helper-data-file-path \(dataFilePath.appending(component: "speedup-helper-data.json").path) \
+            --trade-strategy-plugin-file-path-pattern "\(strategyFilePath.path)/.*.so"
+            """
 
         do {
-            for try await output in runCommand(command: command) {
+            for try await output in runCommand(command: command, taskId: taskId) {
+                // Check if the status has been changed to canceled
+                if case .canceled = runBacktestStatus {
+                    break
+                }
                 runBacktestStatus = .running(output: output)
             }
-            runBacktestStatus = .success
+
+            // Only update to success if not already canceled
+            if case .running = runBacktestStatus {
+                runBacktestStatus = .success
+            }
         } catch let error as CommandError {
-            runBacktestStatus = .failure(error: error)
-            throw error
+            // Only update to failure if not already canceled
+            if case .running = runBacktestStatus {
+                runBacktestStatus = .failure(error: error)
+                throw error
+            }
         } catch {
-            let commandError = CommandError.processFailed(reason: error.localizedDescription)
-            runBacktestStatus = .failure(error: commandError)
-            throw commandError
+            // Only update to failure if not already canceled
+            if case .running = runBacktestStatus {
+                let commandError = CommandError.processFailed(reason: error.localizedDescription)
+                runBacktestStatus = .failure(error: commandError)
+                throw commandError
+            }
         }
+        backtestTaskId = nil
     }
 
     func runGenerateSpeedupHelperDataCommand(
@@ -242,28 +360,47 @@ class CommandService {
         dataFilePath: URL
     ) async throws {
         speedupStatus = .running(output: nil)
+
+        let taskId = UUID()
+        speedupTaskId = taskId
+
         // Construct the command
         let command = """
-        \(executablePath.path) trade backtest generate-speedup-helper-data-from-swap-parquet \\
-         --belong-chain solana \\
-        --market-type p2r \\
-        --output-file-path "\(dataFilePath.appending(component: "speedup-helper-data.json").path)" \\
-        --parquet-file-path-pattern "\(dataFilePath.path)/.*.parquet"
-        """
+            \(executablePath.path) trade backtest generate-speedup-helper-data-from-swap-parquet \\
+             --belong-chain solana \\
+            --market-type p2r \\
+            --output-file-path "\(dataFilePath.appending(component: "speedup-helper-data.json").path)" \\
+            --parquet-file-path-pattern "\(dataFilePath.path)/.*.parquet"
+            """
 
         do {
-            for try await output in runCommand(command: command) {
+            for try await output in runCommand(command: command, taskId: taskId) {
+                // Check if the status has been changed to canceled
+                if case .canceled = speedupStatus {
+                    break
+                }
                 speedupStatus = .running(output: output)
             }
-            speedupStatus = .success
+
+            // Only update to success if not already canceled
+            if case .running = speedupStatus {
+                speedupStatus = .success
+            }
         } catch let error as CommandError {
-            speedupStatus = .failure(error: error)
-            throw error
+            // Only update to failure if not already canceled
+            if case .running = speedupStatus {
+                speedupStatus = .failure(error: error)
+                throw error
+            }
         } catch {
-            let commandError = CommandError.processFailed(reason: error.localizedDescription)
-            speedupStatus = .failure(error: commandError)
-            throw commandError
+            // Only update to failure if not already canceled
+            if case .running = speedupStatus {
+                let commandError = CommandError.processFailed(reason: error.localizedDescription)
+                speedupStatus = .failure(error: commandError)
+                throw commandError
+            }
         }
+        speedupTaskId = nil
     }
 
     func getGoPath() throws -> String {
@@ -313,4 +450,9 @@ class CommandService {
             throw CommandError.processFailed(reason: processError.localizedDescription)
         }
     }
+}
+
+// Helper class to track cancellation
+private class CancelToken {
+    var canceled = false
 }

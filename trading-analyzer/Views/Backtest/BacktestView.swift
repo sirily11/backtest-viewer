@@ -25,25 +25,33 @@ struct BacktestView: View {
             CommandView(
                 title: "Generate accelerated data",
                 description: "Generate accelerated data for the selected dataset",
-                status: commandService.speedupStatus
-            ) {
-                runGenerateAcceleratedData()
-            }
+                status: commandService.speedupStatus,
+                run: {
+                    runGenerateAcceleratedData()
+                },
+                cancel: {
+                    commandService.cancelSpeedupDataGeneration()
+                }
+            )
             Divider()
             CommandView(
                 title: "Run backtest",
                 description: "Run backtest on the selected dataset",
-                status: commandService.runBacktestStatus
-            ) {
-                runRunBacktest()
-            }
+                status: commandService.runBacktestStatus,
+                run: {
+                    runRunBacktest()
+                },
+                cancel: {
+                    commandService.cancelBacktest()
+                }
+            )
         }
         .padding()
     }
 
     func runGenerateAcceleratedData() {
         if let executable = URL(string: executable),
-           let dataFolder = URL(string: dataFolder)
+            let dataFolder = URL(string: dataFolder)
         {
             Task {
                 do {
@@ -62,7 +70,7 @@ struct BacktestView: View {
         Task {
             do {
                 if let makeFilePath = URL(string: makeFile),
-                   let goBinaryPath = URL(string: goPath)
+                    let goBinaryPath = URL(string: goPath)
                 {
                     try await commandService.runMakeCommand(
                         makeFilePath: makeFilePath, goBinaryPath: goBinaryPath
@@ -70,10 +78,10 @@ struct BacktestView: View {
                 }
 
                 if let resultFilePath = URL(string: resultFolder),
-                   let dataFilePath = URL(string: dataFolder),
-                   let taskFilePath = URL(string: taskFolder),
-                   let strategyFilePath = URL(string: pluginFolder),
-                   let executableFilePath = URL(string: executable)
+                    let dataFilePath = URL(string: dataFolder),
+                    let taskFilePath = URL(string: taskFolder),
+                    let strategyFilePath = URL(string: pluginFolder),
+                    let executableFilePath = URL(string: executable)
                 {
                     try await commandService.runBacktestCommand(
                         resultFilePath: resultFilePath, dataFilePath: dataFilePath,
@@ -94,6 +102,7 @@ struct CommandView: View {
     let description: String
     let status: CommandStatus
     let run: () -> Void
+    let cancel: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -105,12 +114,21 @@ struct CommandView: View {
                         .font(.caption)
                 }
                 Spacer()
-                Button {
-                    run()
-                } label: {
-                    Label(status.isRunning ? "Running" : "Run", systemImage: "play.fill")
+
+                if status.isRunning {
+                    Button {
+                        cancel()
+                    } label: {
+                        Label("Cancel", systemImage: "stop.fill")
+                            .foregroundColor(.red)
+                    }
+                } else {
+                    Button {
+                        run()
+                    } label: {
+                        Label("Run", systemImage: "play.fill")
+                    }
                 }
-                .disabled(status.isRunning)
             }
 
             statusView
@@ -146,6 +164,15 @@ struct CommandView: View {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(.green)
                 Text("Task completed successfully")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+        case .canceled:
+            HStack(spacing: 8) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.orange)
+                Text("Task was canceled")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }

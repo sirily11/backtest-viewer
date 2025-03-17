@@ -60,6 +60,9 @@
         }
       }
     },
+    "Cancel" : {
+
+    },
     "Category" : {
       "localizations" : {
         "zh-Hans" : {
@@ -593,9 +596,6 @@
     "Run backtest" : {
 
     },
-    "Running" : {
-
-    },
     "Running..." : {
 
     },
@@ -665,6 +665,9 @@
           }
         }
       }
+    },
+    "Task was canceled" : {
+
     },
     "Time" : {
       "extractionState" : "stale",
