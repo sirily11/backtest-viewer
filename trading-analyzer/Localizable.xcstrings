@@ -247,6 +247,9 @@
         }
       }
     },
+    "Loading price data..." : {
+
+    },
     "Market ID" : {
       "localizations" : {
         "zh-Hans" : {

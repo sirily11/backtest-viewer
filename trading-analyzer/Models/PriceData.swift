@@ -57,19 +57,11 @@ enum PriceDataInterval: String, CaseIterable {
         }
     }
 
-    static func initFromDateRange(from startDate: Date, to endDate: Date) -> PriceDataInterval {
-        // Calculate the time difference between dates in seconds
-        let timeInterval = endDate.timeIntervalSince(startDate)
-
-        // Choose the appropriate interval based on the time span
-        if timeInterval <= 300 { // 5 minutes or less
+    static func initFromScale(scale: Double) -> PriceDataInterval {
+        if scale < 10 {
             return .oneSecond
-        } else if timeInterval <= 3600 { // 1 hour or less
-            return .fifteenSeconds
-        } else if timeInterval <= 86400 { // 1 day or less
-            return .oneMinute
         } else {
-            return .fiveMinutes
+            return .oneMinute
         }
     }
 

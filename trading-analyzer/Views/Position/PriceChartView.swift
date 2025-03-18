@@ -1,4 +1,5 @@
 import Charts
+import Shimmer
 import SwiftUI
 
 struct PriceChartView: View {
@@ -14,6 +15,7 @@ struct PriceChartView: View {
 
     @State var selectedIndex: Int?
     @State var scale: Double = 1
+    @State var isLoading = true
 
     /**
      Calculate the visible range base on the visible date range
@@ -123,16 +125,26 @@ struct PriceChartView: View {
             .padding(.bottom, 8)
 
             if priceData.isEmpty {
-                VStack {
-                    Text("No price data available, check your database connection.")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    Button("Open Settings") {
-                        openWindow(id: "settings")
+                if isLoading {
+                    HStack {
+                        Spacer()
+                        Text("Loading price data...")
+                            .font(.title2)
+                            .shimmering()
+                        Spacer()
                     }
+                } else {
+                    VStack {
+                        Text("No price data available, check your database connection.")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Button("Open Settings") {
+                            openWindow(id: "settings")
+                        }
+                    }
+                    .padding()
+                    .background(Color.secondary.opacity(0.4))
+                    .cornerRadius(8)
                 }
-                .padding()
-                .background(Color.secondary.opacity(0.4))
-                .cornerRadius(8)
             } else {
                 chartView
             }
@@ -251,7 +263,7 @@ extension PriceChartView {
     func fetchPriceData(startDate: Date, endDate: Date) async throws {
         let data = try await duckDBService.fetchPriceData(
             forMarketId: marketId, start: startDate, end: endDate,
-            interval: .oneSecond
+            interval: .initFromScale(scale: scale)
         )
 
         // get trades indexes by price data
@@ -307,8 +319,13 @@ extension PriceChartView {
             // Fetch data with this date range
             Task {
                 do {
+                    isLoading = true
                     try await fetchPriceData(startDate: startDate, endDate: endDate)
                     resetZoom()
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    withAnimation {
+                        isLoading = false
+                    }
 
                 } catch {
                     alertManager.showAlert(message: error.localizedDescription)
@@ -339,7 +356,7 @@ extension PriceChartView {
         self.visibleDateRange = visibleDateRange.scale(to: 0.8)
     }
 
-    /**
+    /** xrin
      Update the visibleDateRange base on the current scale
      */
     func zoomOut() {
