@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		DF4E94A62D8822E300DF3FEF /* Shimmer in Frameworks */ = {isa = PBXBuildFile; productRef = DF4E94A52D8822E300DF3FEF /* Shimmer */; };
 		DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */; };
-		DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE202D81B9C9005F0C90 /* PostgresNIO */; };
 		DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */ = {isa = PBXBuildFile; productRef = DFD9FE902D826DEB005F0C90 /* DuckDB */; };
 /* End PBXBuildFile section */
 
@@ -60,7 +59,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF4E94A62D8822E300DF3FEF /* Shimmer in Frameworks */,
-				DFD9FE212D81B9C9005F0C90 /* PostgresNIO in Frameworks */,
 				DFD9FD8E2D8195E2005F0C90 /* SwiftCSV in Frameworks */,
 				DFD9FE912D826DEB005F0C90 /* DuckDB in Frameworks */,
 			);
@@ -124,7 +122,6 @@
 			name = "trading-analyzer";
 			packageProductDependencies = (
 				DFD9FD8D2D8195E2005F0C90 /* SwiftCSV */,
-				DFD9FE202D81B9C9005F0C90 /* PostgresNIO */,
 				DFD9FE902D826DEB005F0C90 /* DuckDB */,
 				DF4E94A52D8822E300DF3FEF /* Shimmer */,
 			);
@@ -213,7 +210,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */,
-				DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */,
 				DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */,
 				DF4E94A42D8822E300DF3FEF /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */,
 			);
@@ -589,14 +585,6 @@
 				minimumVersion = 0.10.0;
 			};
 		};
-		DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/vapor/postgres-nio";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.25.0;
-			};
-		};
 		DFD9FE8F2D826DEB005F0C90 /* XCRemoteSwiftPackageReference "duckdb-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/duckdb/duckdb-swift";
@@ -617,11 +605,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DFD9FD8C2D8195E2005F0C90 /* XCRemoteSwiftPackageReference "SwiftCSV" */;
 			productName = SwiftCSV;
-		};
-		DFD9FE202D81B9C9005F0C90 /* PostgresNIO */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = DFD9FE1F2D81B9C9005F0C90 /* XCRemoteSwiftPackageReference "postgres-nio" */;
-			productName = PostgresNIO;
 		};
 		DFD9FE902D826DEB005F0C90 /* DuckDB */ = {
 			isa = XCSwiftPackageProductDependency;
