@@ -29,6 +29,13 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           p12-password: ${{ secrets.P12_PASSWORD }}
+      # Only bump version for release events
+      - name: Bump version
+        if: github.event_name == 'release'
+        uses: sirily11/ios-bump-version@master
+        with:
+          version: ${{ github.ref_name }}
+          build-number: ${{github.run_attempt }}
       - name: Build
         run: |
           gem install xcpretty
