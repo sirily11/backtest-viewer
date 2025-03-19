@@ -18,11 +18,6 @@ jobs:
       contents: write
       packages: write
       actions: write
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -81,24 +76,45 @@ jobs:
           files: TradingAnalyzer.dmg
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Publish to GitHub Pages
-      - name: Setup Pages
+      # Upload appcast as an artifact for the deploy job
+      - name: Upload appcast for deploy job
         if: github.event_name == 'release'
-        uses: actions/configure-pages@v5
+        uses: actions/upload-artifact@v4
+        with:
+          name: appcast-${{ github.sha }}
+          path: appcast.xml
+          retention-days: 1
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download appcast from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: appcast-${{ github.sha }}
 
       - name: Prepare pages directory
-        if: github.event_name == 'release'
         run: |
           mkdir -p pages
           cp appcast.xml pages/
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload pages artifact
-        if: github.event_name == 'release'
         uses: actions/upload-pages-artifact@v3
         with:
           path: "pages"
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'release'
         id: deployment
         uses: actions/deploy-pages@v4
