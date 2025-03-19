@@ -86,6 +86,9 @@
         }
       }
     },
+    "Check for Updates..." : {
+
+    },
     "Connected" : {
       "extractionState" : "stale",
       "localizations" : {
