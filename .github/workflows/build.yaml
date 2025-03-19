@@ -67,6 +67,7 @@ jobs:
         env:
           SPARKLE_KEY: ${{ secrets.SPARKLE_KEY }}
           VERSION: ${{ github.ref_name }}
+          RELEASE_NOTE: ${{ github.event.release.body }}
       # Upload artifact for Pull Requests (1 day retention)
       - name: Upload artifact for PR
         if: github.event_name == 'pull_request'
@@ -92,6 +93,13 @@ jobs:
           name: appcast-${{ github.sha }}
           path: appcast.xml
           retention-days: 1
+      - name: Upload release notes for deploy job
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release_notes-${{ github.sha }}
+          path: release_notes.md
+          retention-days: 1
 
   deploy:
     name: Deploy to GitHub Pages
@@ -109,12 +117,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: appcast-${{ github.sha }}
+      - name: Download release notes from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: release_notes-${{ github.sha }}
 
       - name: Prepare pages directory
         run: |
           mkdir -p pages
           cp appcast.xml pages/
-
+          cp release_notes.md pages/
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

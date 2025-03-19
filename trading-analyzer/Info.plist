@@ -7,7 +7,7 @@
 	<key>SUPublicEDKey</key>
 	<string>OOJs50Q9V9lpqBgeRi0ow0YBdiAlmc9uJ3B9hABDsqQ=</string>
 	<key>SUFeedURL</key>
-	<string>https://congenial-capybara-g5q7ww4xgqjc95jv-5500.app.github.dev/appcast.xml</string>
+	<string>https://release.backtest-viewer.bardplus.dev/appcast.xml</string>
 	<key>SUEnableDownloaderService</key>
 	<true/>
 </dict>
