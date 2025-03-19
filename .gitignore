@@ -9,3 +9,5 @@ build
 output
 *.dmg
 temp
+appcast.xml
+*.key

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SUEnableInstallerLauncherService</key>
+	<true/>
+	<key>SUpublicEDKey</key>
+	<string>OOJs50Q9V9lpqBgeRi0ow0YBdiAlmc9uJ3B9hABDsqQ=</string>
+	<key>SUFeedURL String
+
+SUFeedURL String
+
+SUFeedURL</key>
+	<string>https://release.backtest-viewer.bardplus.dev/appcast.xml</string>
+</dict>
+</plist>

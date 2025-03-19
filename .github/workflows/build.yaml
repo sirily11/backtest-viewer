@@ -18,6 +18,11 @@ jobs:
       contents: write
       packages: write
       actions: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,7 +59,11 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PWD: ${{ secrets.APPLE_ID_PWD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-
+      - name: Generate appcast
+        run: ./scripts/generate-appcast.sh
+        env:
+          SPARKLE_KEY: ${{ secrets.SPARKLE_KEY }}
+          VERSION: ${{ github.ref_name }}
       # Upload artifact for Pull Requests (1 day retention)
       - name: Upload artifact for PR
         if: github.event_name == 'pull_request'
@@ -71,3 +80,25 @@ jobs:
         with:
           files: TradingAnalyzer.dmg
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Publish to GitHub Pages
+      - name: Setup Pages
+        if: github.event_name == 'release'
+        uses: actions/configure-pages@v5
+
+      - name: Prepare pages directory
+        if: github.event_name == 'release'
+        run: |
+          mkdir -p pages
+          cp appcast.xml pages/
+
+      - name: Upload pages artifact
+        if: github.event_name == 'release'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "pages"
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'release'
+        id: deployment
+        uses: actions/deploy-pages@v4
