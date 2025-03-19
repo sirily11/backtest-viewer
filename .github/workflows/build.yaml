@@ -67,6 +67,7 @@ jobs:
         env:
           SPARKLE_KEY: ${{ secrets.SPARKLE_KEY }}
           VERSION: ${{ github.ref_name }}
+          BUILD_NUMBER: ${{ github.run_attempt }}
           RELEASE_NOTE: ${{ github.event.release.body }}
       # Upload artifact for Pull Requests (1 day retention)
       - name: Upload artifact for PR

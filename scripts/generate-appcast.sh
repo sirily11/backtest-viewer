@@ -17,5 +17,5 @@ fi
  --download-url-prefix https://github.com/sirily11/backtest-viewer/releases/download/${VERSION}/
 
 if [ -f "release_notes.md" ]; then
-  python3 scripts/update-xml.py appcast.xml release_notes.md
+  python3 scripts/update-xml.py appcast.xml release_notes.md ${BUILD_NUMBER}
 fi
