@@ -1,5 +1,5 @@
 {
-  "originHash" : "7da37042f57e326467b7ac2dfa45acd165fa4497e2e91f6d8089fda459ec023a",
+  "originHash" : "75b53e10bf025a33784c5b4b6d4d8dfc88b9cbfd3c1b2ef8f7b7596e0c29d8ff",
   "pins" : [
     {
       "identity" : "duckdb-swift",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "26bcae65719a4919b0af6837c257e8f6fd538bd6",
         "version" : "0.10.3"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle",
+      "state" : {
+        "revision" : "0ca3004e98712ea2b39dd881d28448630cce1c99",
+        "version" : "2.7.0"
       }
     },
     {
