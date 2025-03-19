@@ -1,5 +1,9 @@
+import Sparkle
 import SwiftUI
 import UniformTypeIdentifiers
+
+var updaterController: SPUStandardUpdaterController?
+let updaterDelegate = UpdaterDelegate()
 
 @main
 struct TradingAnalyzerApp: App {
@@ -10,6 +14,13 @@ struct TradingAnalyzerApp: App {
     @Environment(\.openWindow) var open
     @AppStorage("has-initialized") var hasInitialized = false
     @State var showWelcomeSheet = false
+
+    init() {
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true, updaterDelegate: updaterDelegate, userDriverDelegate: nil)
+        updaterController?.updater.updateCheckInterval = 80
+        updaterController?.updater.automaticallyChecksForUpdates = true
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -52,6 +63,12 @@ struct TradingAnalyzerApp: App {
             CommandGroup(replacing: CommandGroupPlacement.newItem) {
                 Button("Open folder") {
                     showWelcomeSheet = true
+                }
+            }
+
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates...") {
+                    updaterController?.checkForUpdates(nil)
                 }
             }
         }
