@@ -8,9 +8,8 @@ echo "Generating appcast for version: $VERSION"
 # Create a temporary release notes file if release notes exist
 if [ -n "$RELEASE_NOTE" ]; then
   echo "$RELEASE_NOTE" > release_notes.md
-  
   # Convert markdown to HTML with our new script
-  python3 scripts/convert-markdown.py release_notes.md release_notes.html "$VERSION"
+  python3 scripts/convert-markdown.py release_notes.md release_notes.html
 else
   echo "No release notes provided"
 fi

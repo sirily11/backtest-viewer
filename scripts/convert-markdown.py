@@ -3,7 +3,7 @@ import markdown
 import sys
 import os
 
-def convert_markdown_to_html(markdown_file, output_html_file, title=None):
+def convert_markdown_to_html(markdown_file, output_html_file):
     """
     Convert markdown content to HTML with dark mode support
     
@@ -15,11 +15,7 @@ def convert_markdown_to_html(markdown_file, output_html_file, title=None):
     # Read markdown content
     with open(markdown_file, 'r', encoding='utf-8') as f:
         content = f.read()
-    
-    # Add title if provided
-    if title:
-        content = f'# {title}\n\n{content}'
-    
+
     # Convert markdown to HTML
     html_content = markdown.markdown(content, extensions=['fenced_code', 'tables', 'nl2br'])
     
@@ -91,10 +87,7 @@ def convert_markdown_to_html(markdown_file, output_html_file, title=None):
     {html_content}
 </body>
 </html>"""
-    
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(output_html_file), exist_ok=True)
-    
+      
     # Write HTML to file
     with open(output_html_file, 'w', encoding='utf-8') as f:
         f.write(html_document)
@@ -109,6 +102,5 @@ if __name__ == "__main__":
     
     markdown_file = sys.argv[1]
     output_html_file = sys.argv[2]
-    title = sys.argv[3] if len(sys.argv) > 3 else None
     
-    convert_markdown_to_html(markdown_file, output_html_file, title) 
+    convert_markdown_to_html(markdown_file, output_html_file)
