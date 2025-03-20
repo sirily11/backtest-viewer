@@ -3,14 +3,14 @@ import xml.etree.ElementTree as ET
 import os
 import sys
 
-def add_release_notes_link_and_update_version(xml_file, notes_path="./release.md", build_number=None):
+def add_release_notes_link_and_update_version(xml_file, notes_path="./release_notes.html", build_number=None):
     """
     Add a sparkle:releaseNotesLink element to each item in the appcast.xml file
     if it doesn't already have one and update the sparkle:version with the build number.
     
     Args:
         xml_file (str): Path to the appcast.xml file
-        notes_path (str): Path to the release notes file
+        notes_path (str): Path to the release notes HTML file
         build_number (str): Build number to use for sparkle:version
     """
     # Register the namespace
@@ -100,10 +100,10 @@ def add_release_notes_link_and_update_version(xml_file, notes_path="./release.md
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         xml_file = sys.argv[1]
-        notes_path = sys.argv[2] if len(sys.argv) > 2 else "./release_notes.md"
+        notes_path = sys.argv[2] if len(sys.argv) > 2 else "./release_notes.html"
         build_number = sys.argv[3] if len(sys.argv) > 3 else None
         add_release_notes_link_and_update_version(xml_file, notes_path, build_number)
     else:
         print("Usage: python update-xml.py <path_to_appcast.xml> [path_to_release_notes] [build_number]")
-        print("Example: python update-xml.py ./appcast.xml ./release_notes.md 1.2.3")
+        print("Example: python update-xml.py ./appcast.xml ./release_notes.html 1.2.3")
         sys.exit(1)
