@@ -39,7 +39,7 @@ jobs:
         uses: sirily11/ios-bump-version@master
         with:
           version: ${{ github.ref_name }}
-          build-number: ${{github.run_attempt }}
+          build-number: ${{github.run_number }}
       - name: Build
         run: |
           gem install xcpretty
@@ -67,7 +67,7 @@ jobs:
         env:
           SPARKLE_KEY: ${{ secrets.SPARKLE_KEY }}
           VERSION: ${{ github.ref_name }}
-          BUILD_NUMBER: ${{ github.run_attempt }}
+          BUILD_NUMBER: ${{ github.run_number }}
           RELEASE_NOTE: ${{ github.event.release.body }}
       # Upload artifact for Pull Requests (1 day retention)
       - name: Upload artifact for PR
