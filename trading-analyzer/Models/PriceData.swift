@@ -27,6 +27,15 @@ enum PriceOrTrade {
             return nil
         }
     }
+
+    var time: Date {
+        switch self {
+        case .trade(let trade):
+            return trade.confirmTime
+        case .price(let price):
+            return price.timeSecond
+        }
+    }
 }
 
 struct PriceData: Identifiable {

@@ -29,6 +29,12 @@ jobs:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.ref_name }}
           restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.ref_name }}
       - run: npm install --global create-dmg
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+      - name: Install Python dependencies
+        run: pip install markdown
       - uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -99,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release_notes-${{ github.sha }}
-          path: release_notes.md
+          path: release_notes.html
           retention-days: 1
 
   deploy:
@@ -127,7 +133,7 @@ jobs:
         run: |
           mkdir -p pages
           cp appcast.xml pages/
-          cp release_notes.md pages/
+          cp release_notes.html pages/
       - name: Setup Pages
         uses: actions/configure-pages@v5
 

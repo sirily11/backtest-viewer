@@ -232,7 +232,7 @@ struct PriceChartView: View {
                         if let index = value.as(Int.self),
                            index >= 0 && index < priceData.count
                         {
-                            Text(timeFormatter.string(from: priceData[index].price?.timeSecond ?? Date()))
+                            Text(timeFormatter.string(from: priceData[index].time))
                         }
                     }
                 }
@@ -351,7 +351,7 @@ extension PriceChartView {
      Update the visibleDateRange base on the current scale
      */
     func zoomIn() {
-        guard let visibleDateRange = visibleDateRange, scale >= 1 else { return }
+        guard let visibleDateRange = visibleDateRange, scale >= 0.01 else { return }
         scale *= 0.8
         self.visibleDateRange = visibleDateRange.scale(to: 0.8)
     }
