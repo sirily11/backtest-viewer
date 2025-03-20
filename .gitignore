@@ -12,3 +12,5 @@ temp
 appcast.xml
 *.key
 release_notes.md
+.idea
+release_notes.html
