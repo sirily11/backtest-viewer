@@ -4,6 +4,9 @@
     "%lf%%" : {
 
     },
+    "%lld" : {
+
+    },
     "%lld%%" : {
 
     },
@@ -50,6 +53,12 @@
         }
       }
     },
+    "Best & Worst Trades" : {
+
+    },
+    "Best Trade" : {
+
+    },
     "Buy" : {
       "localizations" : {
         "zh-Hans" : {
@@ -89,6 +98,9 @@
     "Check for Updates..." : {
 
     },
+    "Collected at" : {
+
+    },
     "Connected" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -124,6 +136,9 @@
         }
       }
     },
+    "Costs by Token" : {
+
+    },
     "Created" : {
       "localizations" : {
         "zh-Hans" : {
@@ -143,6 +158,9 @@
           }
         }
       }
+    },
+    "Cumulative P&L by Token" : {
+
     },
     "Database" : {
       "extractionState" : "stale",
@@ -253,6 +271,12 @@
     "Loading price data..." : {
 
     },
+    "Loading Summary" : {
+
+    },
+    "Losing" : {
+
+    },
     "Market ID" : {
       "localizations" : {
         "zh-Hans" : {
@@ -322,6 +346,9 @@
           }
         }
       }
+    },
+    "Native Token P&L" : {
+
     },
     "Native Token Performance" : {
       "localizations" : {
@@ -553,6 +580,12 @@
         }
       }
     },
+    "Profitable" : {
+
+    },
+    "Profitable Sells" : {
+
+    },
     "Profits & Losses" : {
       "localizations" : {
         "zh-Hans" : {
@@ -583,6 +616,9 @@
         }
       }
     },
+    "Reload" : {
+
+    },
     "Retry" : {
       "localizations" : {
         "zh-Hans" : {
@@ -600,6 +636,9 @@
 
     },
     "Run backtest" : {
+
+    },
+    "Running time" : {
 
     },
     "Running..." : {
@@ -629,6 +668,12 @@
     "Select %@" : {
 
     },
+    "Select a summary to view details" : {
+
+    },
+    "Select Summary" : {
+
+    },
     "Selected" : {
       "localizations" : {
         "zh-Hans" : {
@@ -649,6 +694,9 @@
         }
       }
     },
+    "Sell Win Ratio" : {
+
+    },
     "Settings" : {
       "localizations" : {
         "zh-Hans" : {
@@ -658,6 +706,15 @@
           }
         }
       }
+    },
+    "Successful Trades" : {
+
+    },
+    "Summary" : {
+
+    },
+    "Summary Statistics" : {
+
     },
     "Task completed successfully" : {
 
@@ -685,6 +742,9 @@
           }
         }
       }
+    },
+    "Total Sell Trades" : {
+
     },
     "Trade Statistics" : {
       "localizations" : {
@@ -725,6 +785,9 @@
           }
         }
       }
+    },
+    "Trading Summary" : {
+
     },
     "Transactions: %lld" : {
       "localizations" : {
@@ -790,6 +853,9 @@
     "Welcome to Trading Analyzer" : {
 
     },
+    "Win Ratio" : {
+
+    },
     "Winrate" : {
       "localizations" : {
         "zh-Hans" : {
@@ -799,6 +865,9 @@
           }
         }
       }
+    },
+    "Worst Trade" : {
+
     },
     "You are not open any back test results folder yet." : {
       "localizations" : {
