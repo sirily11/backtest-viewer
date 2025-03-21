@@ -13,7 +13,7 @@ struct ContentView: View {
     @State private var showRunPopup = false
 
     @AppStorage("result-folder") var resultFolder: String = ""
-    @State private var selectedFolder: URL? = nil
+    @State private var navigation: Navigation? = nil
     @State private var hasLoaded = false
     @AppStorage("has-initialized") var hasInitialized = false
     @Environment(CommandService.self) var commandService
@@ -23,22 +23,34 @@ struct ContentView: View {
         Group {
             if folders.count > 0 {
                 NavigationSplitView(sidebar: {
-                    HStack {
-                        Text("Individual results")
-                            .foregroundStyle(.gray)
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    List(folders, id: \.self, selection: $selectedFolder) { folder in
-                        NavigationLink(value: folder) {
-                            Text(folder.lastPathComponent)
+                    List(selection: $navigation) {
+                        Section {
+                            if let resultFolder = URL(string: resultFolder) {
+                                NavigationLink(value: Navigation.summary(resultFolder.appending(path: "summary-results.json"))) {
+                                    Label("Summary", systemImage: "list.bullet.rectangle")
+                                }
+                            }
+                        }
+                        Section("Individual results") {
+                            ForEach(folders, id: \.self) { folder in
+                                NavigationLink(value: Navigation.individualResult(folder)) {
+                                    Text(folder.lastPathComponent)
+                                }
+                            }
                         }
                     }
-                    .frame(minWidth: 200)
+
                 }, detail: {
-                    if let folder = selectedFolder {
-                        DetailView(folder: folder)
+                    switch navigation {
+                    case .individualResult(let folder):
+                        IndividualResultView(folder: folder)
                             .navigationTitle("Trading Analyzer")
+
+                    case .summary(let url):
+                        SummaryView(url: url)
+
+                    case nil:
+                        EmptyView()
                     }
                 })
             } else {
@@ -130,6 +142,7 @@ extension ContentView {
             }.map {
                 directory.appendingPathComponent($0)
             }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
             self.folders = folders
         } catch {
             print("Error: \(error)")

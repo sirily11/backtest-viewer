@@ -8,7 +8,7 @@
 // Import the views
 import SwiftUI
 
-struct DetailView: View {
+struct IndividualResultView: View {
     let folder: URL
     let positionFile: URL
     let positionTradingFile: URL
