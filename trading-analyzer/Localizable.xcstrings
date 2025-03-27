@@ -98,6 +98,9 @@
     "Check for Updates..." : {
 
     },
+    "Check settings" : {
+
+    },
     "Collected at" : {
 
     },
@@ -380,6 +383,9 @@
         }
       }
     },
+    "No results found in the folder" : {
+
+    },
     "Not selected" : {
 
     },
@@ -439,6 +445,7 @@
       }
     },
     "Pick a folder" : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {
@@ -870,6 +877,7 @@
 
     },
     "You are not open any back test results folder yet." : {
+      "extractionState" : "stale",
       "localizations" : {
         "zh-Hans" : {
           "stringUnit" : {

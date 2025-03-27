@@ -11,10 +11,10 @@ struct ContentView: View {
     @State private var isOpenFolder = false
     @State private var folders = [URL]()
     @State private var showRunPopup = false
+    @State private var resultFolderWatcher: FolderMonitor? = nil
 
     @AppStorage("result-folder") var resultFolder: String = ""
     @State private var navigation: Navigation? = nil
-    @State private var hasLoaded = false
     @AppStorage("has-initialized") var hasInitialized = false
     @Environment(CommandService.self) var commandService
     @Environment(AlertManager.self) var alertManager
@@ -26,8 +26,11 @@ struct ContentView: View {
                     List(selection: $navigation) {
                         Section {
                             if let resultFolder = URL(string: resultFolder) {
-                                NavigationLink(value: Navigation.summary(resultFolder.appending(path: "summary-results.json"))) {
-                                    Label("Summary", systemImage: "list.bullet.rectangle")
+                                let summaryFileURL = resultFolder.appending(path: "summary-results.json")
+                                if FileManager.default.fileExists(atPath: summaryFileURL.path) {
+                                    NavigationLink(value: Navigation.summary(summaryFileURL)) {
+                                        Label("Summary", systemImage: "list.bullet.rectangle")
+                                    }
                                 }
                             }
                         }
@@ -54,12 +57,11 @@ struct ContentView: View {
                     }
                 })
             } else {
-                if !hasLoaded {
-                    ProgressView()
-                } else {
-                    buildEmptyView()
-                }
+                buildEmptyView()
             }
+        }
+        .onDisappear {
+            resultFolderWatcher?.stopMonitoring()
         }
         .alert(alertManager.alertTitle,
                isPresented: alertManager.isAlertPresentedBinding,
@@ -76,13 +78,8 @@ struct ContentView: View {
             print("Reload folders")
             if let url = URL(string: resultFolder) {
                 readFoldersInDirectory(directory: url)
-            }
-        }
-        .onChange(of: commandService.runBacktestStatus) { oldValue, newValue in
-            if oldValue.isRunning && !newValue.isRunning {
-                print("Strategy finished, reload folders")
-                if let url = URL(string: resultFolder) {
-                    readFoldersInDirectory(directory: url)
+                Task {
+                    await watchFolder(folder: url)
                 }
             }
         }
@@ -90,9 +87,7 @@ struct ContentView: View {
             print("Working folder: \(resultFolder)")
             if let url = URL(string: resultFolder) {
                 readFoldersInDirectory(directory: url)
-            }
-            withAnimation {
-                hasLoaded = true
+                await watchFolder(folder: url)
             }
         }
         .toolbar {
@@ -117,10 +112,9 @@ struct ContentView: View {
 
     @ViewBuilder
     func buildEmptyView() -> some View {
-        HStack {
-            Text("You are not open any back test results folder yet.")
-
-            Button("Pick a folder") {
+        VStack {
+            Text("No results found in the folder")
+            Button("Check settings") {
                 hasInitialized = false
             }
         }
@@ -146,6 +140,14 @@ extension ContentView {
             self.folders = folders
         } catch {
             print("Error: \(error)")
+        }
+    }
+
+    func watchFolder(folder: URL) async {
+        resultFolderWatcher?.stopMonitoring()
+        resultFolderWatcher = FolderMonitor(url: folder)
+        for await _ in resultFolderWatcher!.startMonitoring() {
+            readFoldersInDirectory(directory: folder)
         }
     }
 }
