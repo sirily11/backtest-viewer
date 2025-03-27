@@ -268,10 +268,10 @@ struct PriceChartView: View {
 
 extension PriceChartView {
     func fetchPriceData(startDate: Date, endDate: Date, scale: Double) async throws {
-        print("Scale: \(scale)")
+        let count = try await duckDBService.getTotalDataCount(forMarketId: marketId, start: startDate, end: endDate)
         let data = try await duckDBService.fetchPriceData(
             forMarketId: marketId, start: startDate, end: endDate,
-            interval: .initFromScale(scale: scale)
+            interval: .initFromDataCount(count: count)
         )
 
         // get trades indexes by price data

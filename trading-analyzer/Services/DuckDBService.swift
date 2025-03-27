@@ -54,7 +54,10 @@ class DuckDBService {
     }
 
     @MainActor
-    func fetchPriceData(forMarketId marketId: String, start: FoundationDate, end: FoundationDate, interval: PriceDataInterval) async throws
+    func fetchPriceData(
+        forMarketId marketId: String, start: FoundationDate, end: FoundationDate,
+        interval: PriceDataInterval
+    ) async throws
         -> [PriceData]
     {
         guard let connection = connection else {
@@ -69,7 +72,7 @@ class DuckDBService {
 
         // Calculate the duration between start and end
         let durationSeconds = end.timeIntervalSince(start)
-        let minDurationSeconds: TimeInterval = 10 * 60 // 10 minutes in seconds
+        let minDurationSeconds: TimeInterval = 10 * 60  // 10 minutes in seconds
 
         // If the duration is less than 10 minutes, expand it equally on both sides
         var adjustedStart = start
@@ -90,34 +93,34 @@ class DuckDBService {
         if interval.needsCustomGrouping {
             // For 15-second and 5-minute intervals, we need custom grouping
             query = """
-            SELECT
-                CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) || 
-                    CAST((EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier) AS VARCHAR) AS time_interval,
-                AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
-                COUNT(*) AS transaction_count,
-                MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
-                MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
-            FROM read_parquet('\(dataset.path)')
-            WHERE base_address = '\(marketId)'
-            AND block_time BETWEEN '\(startString)' AND '\(endString)'
-            GROUP BY date_trunc('\(interval.sql)', block_time), (EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier)
-            ORDER BY time_interval
-            """
+                SELECT
+                    CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) || 
+                        CAST((EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier) AS VARCHAR) AS time_interval,
+                    AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
+                    COUNT(*) AS transaction_count,
+                    MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
+                    MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
+                FROM read_parquet('\(dataset.path)')
+                WHERE base_address = '\(marketId)'
+                AND block_time BETWEEN '\(startString)' AND '\(endString)'
+                GROUP BY date_trunc('\(interval.sql)', block_time), (EXTRACT(SECOND FROM block_time) / \(interval.secondsMultiplier)) * \(interval.secondsMultiplier)
+                ORDER BY time_interval
+                """
         } else {
             // For 1-second and 1-minute intervals, we can use simple date_trunc
             query = """
-            SELECT
-                CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) AS time_interval,
-                AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
-                COUNT(*) AS transaction_count,
-                MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
-                MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
-            FROM read_parquet('\(dataset.path)')
-            WHERE base_address = '\(marketId)'
-            AND block_time BETWEEN '\(startString)' AND '\(endString)'
-            GROUP BY date_trunc('\(interval.sql)', block_time)
-            ORDER BY time_interval
-            """
+                SELECT
+                    CAST(date_trunc('\(interval.sql)', block_time) AS VARCHAR) AS time_interval,
+                    AVG(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS avg_price_in_sol,
+                    COUNT(*) AS transaction_count,
+                    MIN(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS min_price_in_sol,
+                    MAX(quote_amount::numeric / NULLIF(base_amount, 0)::numeric) AS max_price_in_sol
+                FROM read_parquet('\(dataset.path)')
+                WHERE base_address = '\(marketId)'
+                AND block_time BETWEEN '\(startString)' AND '\(endString)'
+                GROUP BY date_trunc('\(interval.sql)', block_time)
+                ORDER BY time_interval
+                """
         }
         let result = try connection.query(query)
         let secondColumn = result[0].cast(to: String.self)
@@ -132,26 +135,26 @@ class DuckDBService {
                 TabularData.Column(avgPriceColumn).eraseToAnyColumn(),
                 TabularData.Column(transactionCountColumn).eraseToAnyColumn(),
                 TabularData.Column(minPriceColumn).eraseToAnyColumn(),
-                TabularData.Column(maxPriceColumn).eraseToAnyColumn()
+                TabularData.Column(maxPriceColumn).eraseToAnyColumn(),
             ]
         )
 
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // Adjust format to match your data
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"  // Adjust format to match your data
 
         let priceData = dataFrame.rows.map { row in
             let time = row[0, String.self]
 
             // Create a date formatter for parsing the input time
             let inputFormatter = DateFormatter()
-            inputFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss" // Adjust this to match your input format
-            inputFormatter.timeZone = TimeZone(identifier: "UTC") // Assuming original time is in UTC
+            inputFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"  // Adjust this to match your input format
+            inputFormatter.timeZone = TimeZone(identifier: "UTC")  // Assuming original time is in UTC
 
             // Parse the date in the original timezone
             let utcDate = inputFormatter.date(from: time ?? "") ?? Date()
 
             // Convert to user's local timezone
-            let localDate = utcDate // The Date object remains the same, but will display in local time when formatted
+            let localDate = utcDate  // The Date object remains the same, but will display in local time when formatted
 
             return PriceData(
                 timeSecond: localDate,
@@ -176,12 +179,12 @@ class DuckDBService {
 
         // Query to get the earliest and latest block_time for the given market ID
         let query = """
-        SELECT
-            CAST(MIN(block_time) AS VARCHAR) AS earliest_time,
-            CAST(MAX(block_time) AS VARCHAR) AS latest_time
-        FROM read_parquet('\(dataset.path)')
-        WHERE base_address = '\(marketId)'
-        """
+            SELECT
+                CAST(MIN(block_time) AS VARCHAR) AS earliest_time,
+                CAST(MAX(block_time) AS VARCHAR) AS latest_time
+            FROM read_parquet('\(dataset.path)')
+            WHERE base_address = '\(marketId)'
+            """
 
         let result = try connection.query(query)
 
@@ -207,6 +210,39 @@ class DuckDBService {
         }
 
         // Return the date range
-        return startDate ... endDate
+        return startDate...endDate
+    }
+
+    @MainActor
+    func getTotalDataCount(forMarketId marketId: String, start: FoundationDate, end: FoundationDate)
+        async throws -> Int
+    {
+        guard let connection = connection else {
+            throw DuckDBError.connectionError
+        }
+
+        guard let dataset = currentDataset else {
+            throw DuckDBError.missingDataset
+        }
+
+        let iSO8601DateFormatter = ISO8601DateFormatter()
+        let startString = iSO8601DateFormatter.string(from: start)
+        let endString = iSO8601DateFormatter.string(from: end)
+
+        let query = """
+            SELECT COUNT(*) as total_count
+            FROM (
+                SELECT date_trunc('second', block_time) as time_interval
+                FROM read_parquet('\(dataset.path)')
+                WHERE base_address = '\(marketId)'
+                AND block_time BETWEEN '\(startString)' AND '\(endString)'
+                GROUP BY date_trunc('second', block_time)
+            ) as grouped_data
+            """
+
+        let result = try connection.query(query)
+        let countColumn = result[0].cast(to: Int.self)
+
+        return countColumn[0] ?? 0
     }
 }

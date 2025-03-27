@@ -73,6 +73,16 @@ enum PriceDataInterval: String, CaseIterable {
         }
     }
 
+    static func initFromDataCount(count: Int) -> PriceDataInterval {
+        if count < 360 {
+            return .oneSecond
+        } else if count < 21600 {
+            return .oneMinute
+        } else {
+            return .oneHour
+        }
+    }
+
     var sql: String {
         switch self {
         case .oneSecond:
