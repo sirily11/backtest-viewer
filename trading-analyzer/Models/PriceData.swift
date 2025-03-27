@@ -49,28 +49,27 @@ struct PriceData: Identifiable {
 
 enum PriceDataInterval: String, CaseIterable {
     case oneSecond
-    case fifteenSeconds
     case oneMinute
-    case fiveMinutes
+    case oneHour
 
     var displayName: String {
         switch self {
         case .oneSecond:
             return "1s"
-        case .fifteenSeconds:
-            return "15s"
         case .oneMinute:
             return "1m"
-        case .fiveMinutes:
-            return "5m"
+        case .oneHour:
+            return "1h"
         }
     }
 
     static func initFromScale(scale: Double) -> PriceDataInterval {
         if scale < 10 {
             return .oneSecond
-        } else {
+        } else if scale < 40 {
             return .oneMinute
+        } else {
+            return .oneHour
         }
     }
 
@@ -78,22 +77,17 @@ enum PriceDataInterval: String, CaseIterable {
         switch self {
         case .oneSecond:
             return "second"
-        case .fifteenSeconds:
-            // DuckDB doesn't have a 15-second interval for date_trunc
-            return "second"
         case .oneMinute:
+            // DuckDB doesn't have a 15-second interval for date_trunc
             return "minute"
-        case .fiveMinutes:
-            // DuckDB doesn't have a 5-minute interval for date_trunc
-            return "minute"
+        case .oneHour:
+            return "hour"
         }
     }
 
     // For intervals that need manual grouping beyond what date_trunc supports
     var needsCustomGrouping: Bool {
         switch self {
-        case .fifteenSeconds, .fiveMinutes:
-            return true
         default:
             return false
         }
@@ -101,10 +95,6 @@ enum PriceDataInterval: String, CaseIterable {
 
     var secondsMultiplier: Int {
         switch self {
-        case .fifteenSeconds:
-            return 15
-        case .fiveMinutes:
-            return 300
         default:
             return 1
         }

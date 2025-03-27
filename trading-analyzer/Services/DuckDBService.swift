@@ -15,6 +15,7 @@ typealias FoundationDate = Foundation.Date
 enum DuckDBError: LocalizedError {
     case connectionError
     case missingDataset
+    case dataError(String)
 
     var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ enum DuckDBError: LocalizedError {
             return "Connection to the database is not established"
         case .missingDataset:
             return "No dataset is loaded"
+        case .dataError(let message):
+            return message
         }
     }
 }
@@ -159,5 +162,51 @@ class DuckDBService {
             )
         }
         return priceData
+    }
+
+    @MainActor
+    func getDateRangeForMarket(marketId: String) async throws -> ClosedRange<FoundationDate> {
+        guard let connection = connection else {
+            throw DuckDBError.connectionError
+        }
+
+        guard let dataset = currentDataset else {
+            throw DuckDBError.missingDataset
+        }
+
+        // Query to get the earliest and latest block_time for the given market ID
+        let query = """
+        SELECT
+            CAST(MIN(block_time) AS VARCHAR) AS earliest_time,
+            CAST(MAX(block_time) AS VARCHAR) AS latest_time
+        FROM read_parquet('\(dataset.path)')
+        WHERE base_address = '\(marketId)'
+        """
+
+        let result = try connection.query(query)
+
+        // Extract the earliest and latest timestamps from the result
+        let earliestTimeColumn = result[0].cast(to: String.self)
+        let latestTimeColumn = result[1].cast(to: String.self)
+
+        let earliestTimeStr = earliestTimeColumn[0] ?? ""
+        let latestTimeStr = latestTimeColumn[0]
+
+        // Create a date formatter for parsing the timestamps
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = TimeZone(identifier: "UTC")
+
+        // Parse the timestamps into Date objects
+        guard let startDate = dateFormatter.date(from: earliestTimeStr) else {
+            throw DuckDBError.dataError("Failed to parse earliest date")
+        }
+
+        guard let endDate = dateFormatter.date(from: latestTimeStr!) else {
+            throw DuckDBError.dataError("Failed to parse latest date")
+        }
+
+        // Return the date range
+        return startDate ... endDate
     }
 }

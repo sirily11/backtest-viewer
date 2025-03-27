@@ -19,4 +19,17 @@ extension ClosedRange where Bound == Date {
 
         return scaledStart ... scaledEnd
     }
+
+    func suggestScale() -> Double {
+        let start = self.lowerBound
+        let end = self.upperBound
+
+        // Calculate duration in seconds
+        let durationSeconds = end.timeIntervalSince(start)
+
+        // Convert to minutes
+        let durationMinutes = durationSeconds / 60
+
+        return durationMinutes / 30
+    }
 }
