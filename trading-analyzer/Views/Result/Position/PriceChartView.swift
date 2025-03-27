@@ -6,9 +6,6 @@ struct PriceChartView: View {
     let marketId: String
     let trades: [PositionTradeData]
 
-    // Add state for visible range
-    @State private var visibleDateRange: ClosedRange<Date>?
-    @State private var priceData = [PriceOrTrade]()
     @Environment(\.openWindow) var openWindow
     @Environment(DuckDBService.self) var duckDBService
     @Environment(AlertManager.self) var alertManager
@@ -16,6 +13,15 @@ struct PriceChartView: View {
     @State var selectedIndex: Int?
     @State var scale: Double = 1
     @State var isLoading = true
+    // Add state for visible range
+    @State private var visibleDateRange: ClosedRange<Date>?
+    @State private var priceData = [PriceOrTrade]()
+    // fixed date range
+    @State private var dataDateRange: ClosedRange<Date>?
+
+    private var maxScale: Double {
+        dataDateRange?.suggestScale() ?? 1
+    }
 
     /**
      Calculate the visible range base on the visible date range
@@ -61,6 +67,7 @@ struct PriceChartView: View {
                     Label("Zoom Out", systemImage: "minus.magnifyingglass")
                         .font(.caption)
                 }
+                .disabled(scale >= maxScale)
             }
             .padding(.bottom, 4)
 
@@ -158,7 +165,8 @@ struct PriceChartView: View {
                 Task {
                     do {
                         try await fetchPriceData(
-                            startDate: newRange.lowerBound, endDate: newRange.upperBound
+                            startDate: newRange.lowerBound, endDate: newRange.upperBound,
+                            scale: scale
                         )
                     } catch {
                         alertManager.showAlert(message: error.localizedDescription)
@@ -190,7 +198,6 @@ struct PriceChartView: View {
                         .foregroundStyle(.blue.opacity(0.6))
 
                     case .trade(let trade):
-
                         PointMark(
                             x: .value("Index", index),
                             y: .value("Price", calculateTradePrice(trade))
@@ -260,7 +267,8 @@ struct PriceChartView: View {
 // MARK: Fetch data on the fly
 
 extension PriceChartView {
-    func fetchPriceData(startDate: Date, endDate: Date) async throws {
+    func fetchPriceData(startDate: Date, endDate: Date, scale: Double) async throws {
+        print("Scale: \(scale)")
         let data = try await duckDBService.fetchPriceData(
             forMarketId: marketId, start: startDate, end: endDate,
             interval: .initFromScale(scale: scale)
@@ -282,8 +290,10 @@ extension PriceChartView {
                 while currentTradeIndex < tradesIndexes.count, tradesIndexes[currentTradeIndex] == index {
                     // Create a TradeWithPrice object combining the trade and price
                     let trade = trades[currentTradeIndex]
-
-                    mergedData.append(.trade(trade: trade))
+                    // check if trade in range
+                    if trade.confirmTime >= startDate, trade.confirmTime <= endDate {
+                        mergedData.append(.trade(trade: trade))
+                    }
                     currentTradeIndex += 1
                 }
             }
@@ -315,13 +325,16 @@ extension PriceChartView {
 
             // Set the initial date range
             visibleDateRange = startDate...endDate
+            if let visibleDateRange = visibleDateRange {
+                scale = visibleDateRange.suggestScale()
+            }
 
             // Fetch data with this date range
             Task {
                 do {
                     isLoading = true
-                    try await fetchPriceData(startDate: startDate, endDate: endDate)
-                    resetZoom()
+                    try await fetchPriceData(startDate: startDate, endDate: endDate, scale: scale)
+                    self.dataDateRange = try await duckDBService.getDateRangeForMarket(marketId: marketId)
                     try? await Task.sleep(nanoseconds: 500_000_000)
                     withAnimation {
                         isLoading = false
@@ -335,16 +348,9 @@ extension PriceChartView {
     }
 
     func resetZoom() {
-        if !priceData.isEmpty {
-            if let firstDate = priceData.first(where: { $0.price?.timeSecond != nil })?.price?.timeSecond,
-               let lastDate = priceData.last(where: { $0.price?.timeSecond != nil })?.price?.timeSecond
-            {
-                visibleDateRange = firstDate...lastDate
-            }
-
-        } else {
-            visibleDateRange = nil
-        }
+        guard let dataDateRange = dataDateRange else { return }
+        visibleDateRange = dataDateRange
+        scale = dataDateRange.suggestScale()
     }
 
     /**
@@ -356,11 +362,17 @@ extension PriceChartView {
         self.visibleDateRange = visibleDateRange.scale(to: 0.8)
     }
 
-    /** xrin
+    /**
      Update the visibleDateRange base on the current scale
      */
     func zoomOut() {
-        guard let visibleDateRange = visibleDateRange, scale < 60 else { return }
+        guard let visibleDateRange = visibleDateRange else { return }
+        guard let dataDateRange = dataDateRange else { return }
+
+        let maxScale = dataDateRange.suggestScale()
+        if scale >= maxScale {
+            return
+        }
         scale *= 1.2
         self.visibleDateRange = visibleDateRange.scale(to: 1.2)
     }
